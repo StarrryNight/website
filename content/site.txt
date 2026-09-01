@@ -1,0 +1,12 @@
+# Your details. "key: value" — one per line. Lines starting with # are ignored.
+
+name: Samuel Lau
+role: Engineering Physics Student
+tagline: Engineering Physics student at UBC. Software, AI, robotics, physics.
+location: Vancouver, CA
+email: lausingsamuel@gmail.com
+github: https://github.com/StarrryNight
+linkedin: https://linkedin.com/in/samuel-lau-68b844282
+
+# How long each hero image is held, in milliseconds.
+hero_interval: 6000

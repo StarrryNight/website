@@ -1,0 +1,4 @@
+summary: A modern, interactive portfolio website featuring dynamic Three.js backgrounds and engaging click effects
+link: https://portfolio-website-jade-seven-38.vercel.app/
+
+A modern, interactive portfolio website featuring dynamic Three.js backgrounds and engaging click effects. Built with Next.js 15, React 19, and TypeScript, this website showcases my projects and experiences with a beautiful, responsive design. The site includes smooth animations powered by Framer Motion, interactive 3D elements using Three.js and React Three Fiber, and a comprehensive UI component library built with Radix UI and Tailwind CSS. Features include a horizontal pager navigation system, project showcases with detailed dialogs, experience timelines, and a fully responsive design that works seamlessly across all devices.

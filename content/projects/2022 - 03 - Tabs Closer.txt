@@ -1,0 +1,2 @@
+summary: A google chrome extension that allows convenient tab deletion. Published on Chrome Webstore.
+link: https://chromewebstore.google.com/detail/tabcloser/ockefngjdpppnlhgkebeleakbinmlmec?authuser=0&hl=en-US

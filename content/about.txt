@@ -1,0 +1,12 @@
+# The About section. Blank lines separate paragraphs.
+# A "stack:" line becomes the tech list. Everything else is body text.
+
+stack: SOLIDWORKS, Python, C, C#, 3D Printing, Machine Learning
+
+I build autonomous systems — mostly the software that lets a machine work out where it is, what is around it, and what to do next. My work tends to sit between machine learning and control: state estimation for a RoboCup soccer team, transfer learning on genomic sequence data, and a long tail of things I built because I wanted to know whether they would work.
+
+Studying Engineering Physics gave me hands-on grounding in software, mechanical, and electrical systems as one integrated skill set rather than three separate ones. That cross-disciplinary fluency is what lets me find solutions at the intersection of all three, where single-discipline engineers typically get stuck. The math- and physics-heavy coursework built a different asset: physical intuition sharp enough to reason naturally about how a robot perceives its environment and how it should act in response.
+
+At the moment that means machine learning research on regulatory genomics at the de Boer Lab, and vision and estimation work for UBC Thunderbots — with regular detours into CAD, 3D printing, and whatever else the project needs. I would rather own a problem end to end than hand it across a boundary.
+
+Outside of it I play music, play soccer, and am involved in more clubs than is strictly sensible. I value every genuine connection I make along the way.

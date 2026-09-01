@@ -1,0 +1,31 @@
+# One role per block, blocks separated by blank lines.
+# First line:  when | title | where
+# Then one "- " bullet per line.
+
+2026 — now | Machine Learning Researcher | de Boer Lab
+- Applied machine learning to regulatory genomics, focusing on transfer learning between large-scale biological datasets.
+- Built pipelines to train models on MPRA-derived sequence-to-expression data and adapt them to genomic RNA-seq prediction tasks.
+- Worked with noisy, high-dimensional data at scale, which took careful curation and efficient training workflows.
+- Bridged theoretical ML and real experimental data, which needed both the deep learning architectures and the biological context.
+
+2025 — now | Software Developer | UBC Thunderbots
+- Analysed and improved enemy threat evaluation for defensive logic, adding unit tests and simulations that improved accurate threat blocking by 25%.
+- Expanded ball placement test coverage by parametrising scenarios from the 2023 RoboCup SSL technical challenge, cutting redundant code while covering every play case.
+- Refactored Thunderscope's icon handling, replacing custom SVG-based QIcon loaders with QtAwesome and improving UI rendering efficiency by 20%.
+
+2024 — 2025 | Exotic Filament Researcher | UBC Rapid
+- Wrote scientific reports on several exotic 3D printing filaments, covering material properties, tensile test results, and recommended printing parameters.
+- Ran tensile tests on exotic materials in a student lab, including uniaxial tensile and 3-point bending tests.
+- Followed ASTM standards for report generation.
+
+2024 — 2025 | Modelling Team Member | UBC Rapid
+- Obtained the SOLIDWORKS CSWA certification.
+- Filled printing and modelling requests from several UBC-affiliated organisations.
+- Helped the UBC computer science department produce 40+ camera holders for monitoring.
+
+2024 | Web Design Member | UBC Rapid
+- Resolved issues on the UBC Rapid website.
+
+2021 — 2023 | Java/Python Lead Instructor | CodingPals.org
+- Taught programming to over 50 high school students, from introductory through to competitive level.
+- Commended as one of the best instructors near the end of the term, actively improving the curriculum.

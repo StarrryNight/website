@@ -1,0 +1,1 @@
+summary: A team-based engineering project designing a claw to pick up and move objects underwater. I worked on the CAD and some of the C.

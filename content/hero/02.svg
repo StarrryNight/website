@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1200" viewBox="0 0 1920 1200" role="img" aria-label="Hero image 2">
+  <defs>
+    <linearGradient id="g-hero2" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1F1F21"/>
+      <stop offset="60%" stop-color="#4A4A4D"/>
+      <stop offset="100%" stop-color="#87878B"/>
+    </linearGradient>
+    <filter id="blur-hero2"><feGaussianBlur stdDeviation="133"/></filter>
+    <filter id="grain-hero2">
+      <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="3"/>
+      <feColorMatrix type="saturate" values="0"/>
+      <feComponentTransfer><feFuncA type="linear" slope="0.09"/></feComponentTransfer>
+    </filter>
+  </defs>
+  <rect width="1920" height="1200" fill="url(#g-hero2)"/>
+  <g filter="url(#blur-hero2)"><circle cx="1725" cy="765" r="287" fill="#4A4A4D" opacity="0.47" /><circle cx="816" cy="855" r="426" fill="#87878B" opacity="0.28" /><circle cx="626" cy="487" r="322" fill="#1F1F21" opacity="0.38" /><circle cx="638" cy="1107" r="367" fill="#4A4A4D" opacity="0.53" /><circle cx="544" cy="870" r="532" fill="#87878B" opacity="0.35" /></g>
+  <rect width="1920" height="1200" filter="url(#grain-hero2)" opacity="0.5"/>
+</svg>

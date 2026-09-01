@@ -1,0 +1,2 @@
+summary: There are two versions, one using pytorch and one using keras and sklearn. Uses FPL datasets to predict player perforamances after a week.
+link: https://github.com/StarrryNight/Pytorch-FPL

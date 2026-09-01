@@ -1,0 +1,44 @@
+summary: Estimating ball position and velocity from noisy vision data on a RoboCup SSL team.
+
+## The problem
+
+Overhead cameras report the ball's position at a fixed rate, but the readings are noisy and drop out when the ball is occluded. Downstream logic needs a smooth estimate of both position *and* velocity.
+
+We model the ball with state $x_k = [p_x, p_y, v_x, v_y]^T$ and assume constant velocity between frames:
+
+$$x_k = F x_{k-1} + w_{k-1}, \qquad w \sim \mathcal{N}(0, Q)$$
+
+where the transition matrix is
+
+$$F = \begin{bmatrix} 1 & 0 & \Delta t & 0 \\ 0 & 1 & 0 & \Delta t \\ 0 & 0 & 1 & 0 \\ 0 & 0 & 0 & 1 \end{bmatrix}$$
+
+## The update
+
+Each frame gives a measurement $z_k = H x_k + v_k$ with $v \sim \mathcal{N}(0, R)$. The gain is
+
+$$K_k = P_{k|k-1} H^T \left( H P_{k|k-1} H^T + R \right)^{-1}$$
+
+and the corrected estimate is $\hat{x}_{k|k} = \hat{x}_{k|k-1} + K_k(z_k - H\hat{x}_{k|k-1})$.
+
+### Tuning
+
+| Parameter | Meaning | Value |
+| --- | --- | --- |
+| $\Delta t$ | Frame interval | 1/60 s |
+| $Q$ | Process noise | tuned per surface |
+| $R$ | Measurement noise | from camera variance |
+
+Note that $a < b$ and `A & B` both survive the parser, which is the part that usually breaks.
+
+```python
+def predict(x, P, F, Q):
+    x = F @ x
+    P = F @ P @ F.T + Q
+    return x, P
+```
+
+---
+
+## Result
+
+Blocking accuracy improved by **25%**, and the estimate stayed usable through occlusions of up to four frames.

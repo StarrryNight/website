@@ -1,0 +1,13 @@
+summary: An autonomous rover platform — navigation, perception, and control.
+
+## The problem
+
+Describe the task the rover had to perform and the constraints it worked under.
+
+## What I built
+
+Your part of the system: the hardware, the software, the parts you owned versus the parts the team owned.
+
+## Result
+
+What worked, what did not, and what you would change.

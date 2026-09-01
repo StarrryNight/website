@@ -1,0 +1,619 @@
+/* ===========================================================
+   Personal portfolio — one stylesheet, no framework.
+   Monochrome, system fonts, no animation.
+   =========================================================== */
+
+:root {
+  --ink: #111112;
+  --paper: #fcfcfb;
+  --muted: #767679;
+  --line: #e2e2df;
+  --stone: #f1f1ef;
+
+  --measure: 64ch;
+  --gutter: 1.5rem;
+  --wide: 88rem;
+}
+
+@media (min-width: 48em) {
+  :root { --gutter: 2.5rem; }
+}
+
+/* --- reset ------------------------------------------------ */
+
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body,
+h1, h2, h3, p, figure, blockquote, ul, ol, dl, dd { margin: 0; }
+
+ul, ol { padding: 0; list-style: none; }
+
+img, svg { display: block; max-width: 100%; }
+
+button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+
+a { color: inherit; text-decoration: none; }
+
+/* --- base ------------------------------------------------- */
+
+body {
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-size: 17px;
+  line-height: 1.6;
+  color: var(--ink);
+  background: var(--paper);
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection { background: var(--ink); color: var(--paper); }
+
+:focus-visible { outline: 1px solid var(--ink); outline-offset: 3px; }
+
+.wrap {
+  max-width: var(--wide);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.skip-link {
+  position: absolute;
+  left: -9999px;
+}
+.skip-link:focus {
+  left: var(--gutter);
+  top: 1rem;
+  z-index: 100;
+  background: var(--ink);
+  color: var(--paper);
+  padding: 0.5rem 1rem;
+}
+
+/* --- type ------------------------------------------------- */
+
+h1, h2, h3 { font-weight: 500; letter-spacing: -0.03em; line-height: 1.1; }
+
+.display {
+  font-size: clamp(2.5rem, 10vw, 8rem);
+  line-height: 0.92;
+  letter-spacing: -0.045em;
+}
+
+.heading { font-size: clamp(2.4rem, 5.2vw, 4rem); }
+
+.meta {
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.lede { color: var(--muted); max-width: 34rem; }
+
+.link {
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 2px;
+}
+.link:hover { border-color: var(--ink); }
+
+/* --- header ----------------------------------------------- */
+
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: var(--paper);
+}
+
+.site-header .wrap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 3.75rem;
+}
+
+.site-nav ul { display: flex; gap: 1.75rem; }
+.site-nav a:hover { opacity: 0.6; }
+.site-nav .contact { color: var(--muted); }
+
+.nav-toggle { display: none; font-size: 0.875rem; }
+
+@media (max-width: 47.99em) {
+  .nav-toggle { display: block; }
+  .site-nav {
+    display: none;
+    position: absolute;
+    inset-inline: 0;
+    top: 100%;
+    background: var(--paper);
+    color: var(--ink);
+    padding: 0 var(--gutter) 1rem;
+  }
+  .site-nav[data-open="true"] { display: block; }
+  .site-nav ul { display: block; }
+  .site-nav a { display: block; padding: 0.75rem 0; }
+}
+
+/* --- hero ------------------------------------------------- */
+
+.hero {
+  position: relative;
+  min-height: 30rem;
+  height: calc(100svh - 3.75rem);
+  background: var(--ink);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+
+.hero img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Flat wash so the name stays readable on any photo. */
+.hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.32);
+}
+
+.hero .wrap { position: relative; z-index: 1; width: 100%; }
+
+.hero-foot { margin-top: 2rem; }
+.hero-foot p { max-width: 30rem; font-size: 1.125rem; color: rgba(255, 255, 255, 0.85); }
+.hero-foot .meta { margin-top: 1.25rem; }
+.hero-foot .meta { color: rgba(255, 255, 255, 0.55); }
+
+.hero-dots {
+  position: absolute;
+  z-index: 1;
+  right: var(--gutter);
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.hero-dots button {
+  width: 1px;
+  height: 1.5rem;
+  background: rgba(255, 255, 255, 0.35);
+}
+.hero-dots button[aria-current="true"] { background: #fff; }
+
+@media (max-width: 47.99em) {
+  .hero-dots { display: none; }
+}
+
+/* --- sections --------------------------------------------- */
+
+.section { padding-block: 5rem; }
+
+@media (min-width: 48em) {
+  .section { padding-block: 8rem; }
+}
+
+.section-head-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem 2.5rem;
+}
+
+.section-head h2 { max-width: 32rem; }
+
+/* --- intro ------------------------------------------------ */
+
+.intro-grid {
+  display: grid;
+  gap: 3rem;
+  margin-top: 3.5rem;
+}
+
+@media (min-width: 48em) {
+  .intro-grid {
+    grid-template-columns: 1fr 0.7fr;
+    gap: 5rem;
+    margin-top: 5rem;
+  }
+}
+
+.intro-text p { max-width: var(--measure); font-size: 1.0625rem; color: #3d3d40; }
+.intro-text p + p { margin-top: 1.25rem; }
+.intro-text .actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1.5rem 2rem;
+  margin-top: 2.5rem;
+}
+.intro-text .link { font-size: 0.9375rem; }
+
+.button {
+  display: inline-block;
+  padding: 0.6rem 1.25rem;
+  font-size: 0.9375rem;
+  border: 1px solid var(--ink);
+}
+.button:hover { background: var(--ink); color: var(--paper); }
+
+.stack { display: flex; flex-wrap: wrap; gap: 0.5rem 1.5rem; margin-top: 2rem; }
+.stack li { font-size: 0.9375rem; color: var(--muted); }
+
+.portrait {
+  aspect-ratio: 4 / 5;
+  background: var(--stone);
+}
+.portrait img { width: 100%; height: 100%; object-fit: cover; }
+
+@media (max-width: 47.99em) {
+  .intro-grid .portrait { order: -1; }
+}
+
+/* --- projects (horizontal, native scroll) ----------------- */
+
+.projects-count { display: flex; align-items: center; gap: 1.5rem; font-size: 0.9375rem; }
+.projects-count .tally { color: var(--muted); font-variant-numeric: tabular-nums; }
+.projects-arrows { display: flex; gap: 1rem; }
+.projects-arrows button:hover { opacity: 0.6; }
+.projects-arrows button[disabled] { opacity: 0.25; cursor: default; }
+
+.projects-track {
+  display: flex;
+  gap: 0;
+  margin-top: 2rem;
+  padding-inline: var(--gutter);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+}
+.projects-track::-webkit-scrollbar { display: none; }
+
+@media (min-width: 48em) {
+  .projects-track { margin-top: 2.5rem; }
+}
+
+.project {
+  position: relative;
+  flex: 0 0 auto;
+  width: 88vw;
+  aspect-ratio: 4 / 3;
+  background: var(--stone);
+  scroll-snap-align: start;
+  overflow: hidden;
+}
+
+@media (min-width: 40em) { .project { width: 64vw; } }
+@media (min-width: 64em) { .project { width: 46vw; } }
+
+.project a { position: absolute; inset: 0; }
+/* Screenshots vary a lot in shape — anchor the crop to the top so the
+   useful part of each one stays visible. */
+.project img { width: 100%; height: 100%; object-fit: cover; object-position: center top; }
+
+.project a::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.42);
+}
+
+/* Shown only on cards that lead to a project page, and only on
+   hover or keyboard focus. No fade — it is simply there or not. */
+.open {
+  display: none;
+  position: absolute;
+  z-index: 2;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  padding: 1.15rem 2.25rem;
+  font-size: 1.25rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  color: var(--ink);
+  background: var(--paper);
+}
+.open::after { content: "  \2192"; }
+
+.project a:hover .open,
+.project a:focus-visible .open { display: block; }
+
+/* The card dims hard behind the button so it cannot be missed. */
+.project a:hover::after,
+.project a:focus-visible::after { background: rgba(0, 0, 0, 0.72); }
+
+/* Touch has no hover, so show it permanently — smaller, and tucked
+   above the title so it does not cover the image. */
+@media (hover: none) {
+  .project a .open {
+    display: block;
+    left: 2rem;
+    top: auto;
+    bottom: 5.5rem;
+    transform: none;
+    padding: 0.6rem 1.25rem;
+    font-size: 1rem;
+  }
+  .project a:hover::after { background: rgba(0, 0, 0, 0.42); }
+}
+
+.project-label {
+  position: absolute;
+  z-index: 1;
+  inset-inline: 0;
+  bottom: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 2rem;
+  color: #fff;
+}
+.project-label h3 { font-size: 1.5rem; }
+.project-label .meta { color: rgba(255, 255, 255, 0.65); }
+
+/* Lets the last card scroll to the left edge. */
+.projects-track .spacer { flex: 0 0 var(--gutter); }
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.75rem;
+  margin-top: 2.5rem;
+}
+.filters button {
+  font-size: 1rem;
+  color: var(--muted);
+  padding-bottom: 3px;
+  border-bottom: 1px solid transparent;
+}
+.filters button:hover { color: var(--ink); }
+.filters button[aria-pressed="true"] {
+  color: var(--ink);
+  border-bottom-color: var(--ink);
+}
+
+/* --- post cards ------------------------------------------- */
+
+.card-grid {
+  display: grid;
+  gap: 3rem;
+  margin-top: 3.5rem;
+}
+
+@media (min-width: 48em) {
+  .card-grid { grid-template-columns: repeat(3, 1fr); gap: 2.5rem; margin-top: 5rem; }
+}
+
+.card-thumb { aspect-ratio: 4 / 3; background: var(--stone); }
+.card-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.card .meta { margin-top: 1.5rem; }
+.card h3 { margin-top: 0.75rem; font-size: 1.25rem; line-height: 1.3; }
+.card p { margin-top: 0.6rem; color: var(--muted); font-size: 1rem; }
+.card a:hover h3 { opacity: 0.6; }
+
+/* --- testimonials ----------------------------------------- */
+
+.quote blockquote { max-width: var(--measure); font-size: 1.0625rem; color: #3d3d40; }
+.quote figcaption { margin-top: 1.5rem; font-size: 0.9375rem; line-height: 1.45; }
+.quote .who { display: block; }
+.quote .role { display: block; color: var(--muted); }
+
+/* --- life gallery ----------------------------------------- */
+
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+  margin-top: 3rem;
+}
+
+@media (min-width: 48em) {
+  .gallery { grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 4rem; }
+}
+
+.gallery li { position: relative; aspect-ratio: 1 / 1; background: var(--stone); }
+.gallery figure { position: absolute; inset: 0; }
+.gallery img { width: 100%; height: 100%; object-fit: cover; }
+
+/* Same idea as the project cards: the image dims and the caption
+   appears. No fade — it is simply there or not. */
+.gallery figure::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+.gallery li:hover figure::after { background: rgba(0, 0, 0, 0.72); }
+
+.caption {
+  display: none;
+  position: absolute;
+  z-index: 1;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 86%;
+  text-align: center;
+  font-size: 1.125rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: #fff;
+}
+.gallery li:hover .caption { display: block; }
+
+/* Touch has no hover, so the caption sits under the photo instead. */
+@media (hover: none) {
+  .gallery li { aspect-ratio: auto; background: none; }
+  .gallery figure { position: static; }
+  .gallery figure > img { aspect-ratio: 1 / 1; }
+  .gallery li:hover figure::after { background: none; }
+  .caption {
+    display: block;
+    position: static;
+    transform: none;
+    width: auto;
+    margin-top: 0.6rem;
+    text-align: left;
+    font-size: 0.9375rem;
+    font-weight: 400;
+    color: var(--muted);
+  }
+}
+
+/* A couple of cells run tall so the grid is not a flat chequerboard.
+   Only where the overlay layout applies — the touch layout stacks the
+   caption under a square photo instead. */
+@media (min-width: 48em) and (hover: hover) {
+  .gallery li:nth-child(3n + 1) { aspect-ratio: 4 / 5; }
+}
+
+/* --- post page -------------------------------------------- */
+
+.post { padding-block: 4rem 6rem; }
+.post .wrap { max-width: var(--measure); }
+
+.post-header { margin-top: 3rem; }
+.post-header h1 { margin-top: 2rem; font-size: clamp(2.4rem, 5.2vw, 4rem); }
+.post-header .lede { margin-top: 1.25rem; }
+
+.post-cover { aspect-ratio: 4 / 3; background: var(--stone); margin-top: 3rem; }
+.post-cover img { width: 100%; height: 100%; object-fit: cover; }
+
+.post-body { margin-top: 3rem; font-size: 1.0625rem; color: #3d3d40; }
+.post-body > * + * { margin-top: 1.4em; }
+.post-body h2 { margin-top: 3em; font-size: 1.0625rem; color: var(--ink); }
+.post-body strong { font-weight: 500; color: var(--ink); }
+.post-body ul { list-style: disc; padding-left: 1.2em; }
+.post-body ol { list-style: decimal; padding-left: 1.2em; }
+.post-body li + li { margin-top: 0.45em; }
+.post-body li::marker { color: var(--muted); }
+.post-body blockquote { padding-left: 1.5em; border-left: 1px solid var(--line); color: var(--ink); }
+
+/* Markdown extras: italics, rules, images, code blocks, tables. */
+.post-body em { font-style: italic; }
+.post-body hr { border: 0; border-top: 1px solid var(--line); margin-block: 3em; }
+.post-body img { display: block; width: 100%; margin-block: 2em; }
+
+.post-body code {
+  font-size: 0.9em;
+  background: var(--stone);
+  padding: 0.12em 0.35em;
+}
+.post-body pre {
+  overflow-x: auto;
+  background: var(--stone);
+  padding: 1.25rem 1.5rem;
+  font-size: 0.9375rem;
+  line-height: 1.6;
+}
+.post-body pre code { background: none; padding: 0; font-size: inherit; }
+
+/* Wide tables scroll inside their own box rather than the page. */
+.post-body table {
+  display: block;
+  overflow-x: auto;
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9375rem;
+}
+.post-body th,
+.post-body td {
+  text-align: left;
+  padding: 0.7rem 1.25rem 0.7rem 0;
+  border-bottom: 1px solid var(--line);
+  white-space: nowrap;
+}
+.post-body th { font-weight: 500; color: var(--ink); }
+
+/* KaTeX: keep a long display formula from widening the page. */
+.post-body .katex-display {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-block: 0.5em;
+}
+
+.post-nav {
+  display: grid;
+  gap: 2rem;
+  margin-top: 5rem;
+}
+@media (min-width: 40em) {
+  .post-nav { grid-template-columns: 1fr 1fr; }
+  .post-nav .next { text-align: right; }
+}
+.post-nav span { display: block; }
+.post-nav .title { margin-top: 0.75rem; }
+.post-nav a:hover .title { opacity: 0.6; }
+
+/* --- page header (blog index / posts) --------------------- */
+
+.page-head { padding-block: 4rem 0; }
+.page-head h1 { max-width: 32rem; }
+.page-head .lede { margin-top: 1.25rem; }
+
+/* --- timeline --------------------------------------------- */
+
+.timeline { margin-top: 3.5rem; }
+
+@media (min-width: 48em) {
+  .timeline { margin-top: 5rem; }
+}
+
+.timeline li { display: grid; gap: 0.5rem; }
+.timeline li + li { margin-top: 3rem; }
+
+@media (min-width: 40em) {
+  .timeline li {
+    grid-template-columns: 8rem 1fr;
+    gap: 2.5rem;
+    align-items: baseline;
+  }
+  .timeline li + li { margin-top: 3.5rem; }
+}
+
+.timeline .when { padding-top: 0.35rem; }
+.timeline h2 { font-size: 1.375rem; }
+.timeline .where { color: var(--muted); font-size: 0.9375rem; }
+.timeline p { max-width: var(--measure); color: #3d3d40; margin-top: 0.75rem; }
+.timeline .points { max-width: var(--measure); margin-top: 1rem; color: #3d3d40; }
+.timeline .points li { display: list-item; list-style: disc; margin-left: 1.1em; }
+.timeline .points li + li { margin-top: 0.5rem; }
+
+/* --- footer ----------------------------------------------- */
+
+.site-footer { padding-block: 2rem 3rem; }
+
+.footer-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 2rem 2.5rem;
+}
+.footer-top h2 { max-width: 28rem; }
+
+.footer-bottom {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 1rem 2rem;
+  margin-top: 5rem;
+  font-size: 0.9375rem;
+  color: var(--muted);
+}
+.footer-bottom ul { display: flex; flex-wrap: wrap; gap: 0.5rem 2rem; }
+.footer-bottom a:hover { color: var(--ink); }

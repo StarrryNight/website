@@ -1,0 +1,4 @@
+summary: A portfolio website with background and clicking effects
+link: https://github.com/StarrryNight/Physics_Engine
+
+A modern, interactive portfolio website featuring dynamic Three.js backgrounds and engaging click effects. Built with Next.js and React, this website showcases my projects and experiences with a beautiful, responsive design.

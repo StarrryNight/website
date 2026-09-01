@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="900" viewBox="0 0 1200 900" role="img" aria-label="Life photo 8">
+  <defs>
+    <linearGradient id="g-life8" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#141415"/>
+      <stop offset="60%" stop-color="#2E2E30"/>
+      <stop offset="100%" stop-color="#5B5B5F"/>
+    </linearGradient>
+    <filter id="blur-life8"><feGaussianBlur stdDeviation="100"/></filter>
+    <filter id="grain-life8">
+      <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="3"/>
+      <feColorMatrix type="saturate" values="0"/>
+      <feComponentTransfer><feFuncA type="linear" slope="0.09"/></feComponentTransfer>
+    </filter>
+  </defs>
+  <rect width="1200" height="900" fill="url(#g-life8)"/>
+  <g filter="url(#blur-life8)"><circle cx="552" cy="479" r="168" fill="#2E2E30" opacity="0.54" /><circle cx="433" cy="139" r="173" fill="#5B5B5F" opacity="0.54" /><circle cx="345" cy="469" r="245" fill="#141415" opacity="0.47" /><circle cx="1134" cy="577" r="339" fill="#2E2E30" opacity="0.31" /><circle cx="385" cy="360" r="303" fill="#5B5B5F" opacity="0.40" /></g>
+  <rect width="1200" height="900" filter="url(#grain-life8)" opacity="0.5"/>
+</svg>

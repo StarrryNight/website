@@ -1,0 +1,4 @@
+summary: Generate color gradients from an anchoring color using an exponential algorithm
+link: https://github.com/StarrryNight/Color-pallete-picker
+
+A Python application built with Tkinter that generates beautiful color palettes and gradients from a single anchoring color. Uses an exponential algorithm to create smooth color transitions. The color theme of this website was selected using this generator.

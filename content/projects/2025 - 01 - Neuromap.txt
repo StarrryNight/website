@@ -1,0 +1,10 @@
+summary: An interactive knowledge mapping and visualization application that combines powerful graph visualization with AI-powered explanations to help users understand and document complex relationships between concepts.
+link: https://www.neuromap.link/
+
+Neuronmap is a visual tool for mapping how ideas connect. You create nodes for concepts and draw connections between them. When you select parts of your map, an AI explains how those ideas relate.
+
+Think of it like a mind map or concept map, but interactive: you can drag nodes, connect them in different ways, and get AI explanations of the relationships you've drawn. It helps you visualize and understand complex topics by showing connections visually and explaining them in plain language.
+
+The app has two parts: a visual interface where you build your map, and an AI system that analyzes your selections and explains the relationships. You can create different types of nodes (like main ideas, secondary ideas, and details) and connect them with different line styles to show different kinds of relationships.
+
+It's useful for learning, organizing thoughts, documenting systems, or exploring how concepts relate. The AI acts like a teacher, helping you understand the connections you've mapped.

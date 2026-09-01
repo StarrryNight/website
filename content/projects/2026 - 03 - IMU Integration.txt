@@ -1,0 +1,13 @@
+summary: Fusing inertial measurements into the state estimate of an autonomous robot.
+
+## The problem
+
+An IMU gives high-rate acceleration and angular velocity but drifts over time. On its own it is not a position estimate; fused with another source it is a very good one.
+
+## What I built
+
+Describe the sensor, the fusion approach, how you calibrated it, and how you dealt with drift and bias.
+
+## Result
+
+What the integration improved.

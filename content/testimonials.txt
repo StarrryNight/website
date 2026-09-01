@@ -1,0 +1,12 @@
+# One per block, blocks separated by blank lines.
+# The quote, then a final line:  — Name, Role
+# THESE ARE PLACEHOLDERS. Replace them before publishing.
+
+Samuel has the rare habit of asking the question everyone else skipped. Our launch was better for it — sharper, simpler, and a month earlier than we planned.
+— Ada Whitfield, Product Lead, Northwind
+
+He moves between design and engineering without dropping anything on either side. It is genuinely hard to find, and it changed how our team works.
+— Tomás Herrera, Founder, Atlas
+
+Thoughtful, fast, and completely unflappable. I have handed him half-formed ideas and gotten back something better than what I had in my head.
+— Priya Raman, Editor, Field Notes
