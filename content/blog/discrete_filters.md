@@ -1,7 +1,7 @@
 title: Discrete Filters Technical Writeup
 date: 14 August 2026
 tags: Robotics, State Estimation
-summary: TODO - one sentence for the card.
+summary: Working in public is uncomfortable for about a week, and useful forever after.
 
 TODO - write the post.
 
