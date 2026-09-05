@@ -1,4 +1,5 @@
 summary: A React web application that generates spatial audio in a 3D environment. Experience immersive 3D sound by positioning a speaker in 3D space relative to a mannequin listener.
+category: Software
 link: https://audio-spatial-transform-9kfye5z5t-starrrynights-projects.vercel.app/
 
 A modern, interactive portfolio website featuring dynamic Three.js backgrounds and engaging click effects. Built with Next.js and React, this website showcases my projects and experiences with a beautiful, responsive design.

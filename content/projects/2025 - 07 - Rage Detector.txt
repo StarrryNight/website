@@ -1,2 +1,3 @@
 summary: A real-time emotion detection system designed to identify rage and anger in gaming contexts, particularly for reaction to bad randoms in Marvel Rivals and other competitive games.
+category: Machine Learning
 link: https://github.com/StarrryNight/Rage-Detector

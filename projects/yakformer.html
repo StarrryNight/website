@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Yakformer — Samuel Lau</title>
+<meta name="description" content="A sequence-to-expression model trained on ten times more annotated DNA than the model it builds on.">
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="icon" href="../favicon.ico" sizes="any">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<link rel="stylesheet" href="../css/style.css?v=1788621881005">
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="site-header">
+  <div class="wrap">
+    <a href="../index.html">Samuel Lau</a>
+    <button class="nav-toggle" type="button" aria-expanded="false">Menu</button>
+    <nav class="site-nav">
+      <ul>
+        <li><a href="../index.html#work">Work</a></li>
+        <li><a href="../index.html#about">About</a></li>
+        <li><a href="../timeline.html">Timeline</a></li>
+        <li><a href="../life.html">Life</a></li>
+        <li><a href="../blog.html">Writing</a></li>
+        <li><a href="https://drive.google.com/file/d/14a2xltDFie9RSNopcXehIVePmRw_-OLX/view?usp=sharing" target="_blank" rel="noopener noreferrer">Resume</a></li>
+        <li><a class="contact" href="mailto:lausingsamuel@gmail.com">Contact</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+  <article class="post">
+    <div class="wrap">
+      <a href="../index.html#work">&larr; Work</a>
+
+      <header class="post-header">
+        <p class="meta">2026</p>
+        <h1>Yakformer</h1>
+        <p class="lede">A sequence-to-expression model trained on ten times more annotated DNA than the model it builds on.</p>
+      </header>
+
+      <div class="post-cover">
+        <img src="../images/project-yakformer.png" alt="">
+      </div>
+
+      <div class="post-body">
+        <blockquote>Good models require rigorous benchmarking, just to compare.</blockquote>
+        <p>Work at the de Boer Lab with Abdul Muntakim Rafi and Sean Windle. The model side of the same project as <a href="snakeseq.html">SnakeSeq</a>.</p>
+        <h2>Gap</h2>
+        <p>Yorzoi is the sequence-to-expression model we started from. DNA in, predicted gene expression out. It learns from 81 experiments, 71 of them native and SCRaMBLEd chromosome 9 strains, plus 10 yeast artificial chromosomes thrown in mostly to diversify the domain.</p>
+        <p>Ten YACs isn't much. To me the YACs are the interesting part of that dataset, because they're chromosome scale naive DNA carrying inserts taken from human chromosomes. The model has to predict expression from sequence alone instead of leaning on anything it's memorised about yeast.</p>
+        <p>So my question was pretty simple: what happens if we stop treating the YAC data as a garnish.</p>
+        <h2>My solution</h2>
+        <p>I kept Yorzoi's architecture and added a head. The change isn't the network. It's that we train on ten times more annotated DNA, all of it processed and quality-checked through SnakeSeq, so every sample the model sees has known provenance and known quality.</p>
+        <h2>Benchmarks</h2>
+        <p>A model that only looks good on data resembling its training set hasn't really been evaluated. So I used three benchmarks, each one further from what it trained on:</p>
+        <ol><li><strong>Hold-out testing</strong> on the same dataset. The easy case.</li><li><strong>The de Boer lab MPRA evaluation</strong>, inherited from Yorzoi so the two are directly comparable. Predict over a 4992 bp window with the YFP start codon at 1000 bp, sum predicted expression across the YFP region, scatter that against ground truth.</li><li><strong>The Shalem et al MPRA evaluation</strong>, an outside dataset the model has no connection to at all.</li></ol>
+        <p>Alongside those I ran scaling law analysis, which asks something different. Not how good our model is now, but whether adding more data keeps helping. That's what tells us whether the answer to a weak result is more sequencing or a different architecture.</p>
+      </div>
+
+      <nav class="post-nav">
+        <a class="prev" href="snakeseq.html"><span class="meta">Previous</span><span class="title">SnakeSeq</span></a>
+        <a class="next" href="neuromap.html"><span class="meta">Next</span><span class="title">Neuromap</span></a>
+      </nav>
+    </div>
+  </article>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="inner">
+      <div class="footer-top">
+        <h2 class="heading">Contact</h2>
+        <a class="link" href="mailto:lausingsamuel@gmail.com">lausingsamuel@gmail.com</a>
+      </div>
+      <div class="footer-bottom">
+        <p>© 2026 Samuel Lau</p>
+        <ul>
+          <li><a href="https://github.com/StarrryNight">GitHub</a></li>
+          <li><a href="https://linkedin.com/in/samuel-lau-68b844282">LinkedIn</a></li>
+          <li><a href="https://drive.google.com/file/d/14a2xltDFie9RSNopcXehIVePmRw_-OLX/view?usp=sharing" target="_blank" rel="noopener noreferrer">Resume</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="../js/main.js?v=1788621881005"></script>
+</body>
+</html>

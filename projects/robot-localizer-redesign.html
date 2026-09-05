@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Robot Localizer Redesign — Samuel Lau</title>
+<meta name="description" content="Replacing our robots' Kalman filter localizer with an EKF in the robot frame, so that frame conversions happen inside the filter where correction can reach them.">
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="icon" href="../favicon.ico" sizes="any">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<link rel="stylesheet" href="../css/style.css?v=1788621881005">
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="site-header">
+  <div class="wrap">
+    <a href="../index.html">Samuel Lau</a>
+    <button class="nav-toggle" type="button" aria-expanded="false">Menu</button>
+    <nav class="site-nav">
+      <ul>
+        <li><a href="../index.html#work">Work</a></li>
+        <li><a href="../index.html#about">About</a></li>
+        <li><a href="../timeline.html">Timeline</a></li>
+        <li><a href="../life.html">Life</a></li>
+        <li><a href="../blog.html">Writing</a></li>
+        <li><a href="https://drive.google.com/file/d/14a2xltDFie9RSNopcXehIVePmRw_-OLX/view?usp=sharing" target="_blank" rel="noopener noreferrer">Resume</a></li>
+        <li><a class="contact" href="mailto:lausingsamuel@gmail.com">Contact</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+  <article class="post">
+    <div class="wrap">
+      <a href="../index.html#work">&larr; Work</a>
+
+      <header class="post-header">
+        <p class="meta">2026 <span class="status"><span class="dot" aria-hidden="true"></span>Ongoing</span></p>
+        <h1>Robot Localizer Redesign</h1>
+        <p class="lede">Replacing our robots' Kalman filter localizer with an EKF in the robot frame, so that frame conversions happen inside the filter where correction can reach them.</p>
+      </header>
+
+      <div class="post-cover">
+        <img src="../images/project-robot-localizer-redesign.jpg" alt="">
+      </div>
+
+      <div class="post-body">
+        <blockquote>A filter can't fix a mistake you made before you handed it the data.</blockquote>
+        <p>This is what I'm on right now at Thunderbots. Started as an IMU calibration ticket, turned into a full redesign.</p>
+        <h2>Context 
+I was fixing IMU calibration and kept noticing the IMU was breaking stuff way beyond calibration. We weren't fusing IMU omega and vision properly and it was wrecking our position prediction.</h2>
+        <p>One of the members on the team measured the localizer last sprint and got about 1-2cm off at low speed, 2-3cm at medium. That's the part that made me feel like smth wrong is going on because it scales with speed.</p>
+        <p>Our prediction step has delta T hardcoded to 0.015s. So at 1 m/s the filter predicts you moved 1.5cm. At 2 m/s, 3cm. Those are basically exactly the numbers he measured.</p>
+        <p>This shows that our robot localizer is just predicting. The measurements we got from wheel encoders and IMUs are not integrated well enough. More testing will be done to show this.</p>
+        <h2>Problem</h2>
+        <p>Right now it's a Linear Kalman Filter in the global frame, fusing delayed vision, IMU and wheel odometry. I found six structural issues and most of them come back to one thing.</p>
+        <p><strong>We rotate wheel velocities into the global frame before they ever reach the filter.</strong> We do it using the current heading estimate, which might be stale and hasn't been corrected yet. And because that rotation happens outside the filter, whatever error is in that heading gets baked into the velocity permanently. The correction step has no way to touch it.</p>
+        <p>The rest of the list:</p>
+        <ul><li><strong>Rewind duration is hardcoded.</strong> Vision comes in late so we rewind, apply the measurement back at that point in time, then replay forward. But packet latency varies, and honestly the constant we picked isn't even the right constant.</li><li><strong>No real control input.</strong> The filter can't predict where the robot is being told to go. We're using acceleration as a stand-in and it's noisy and it's not what we want to model anyway.</li><li><strong>History grows forever during a vision blackout.</strong> No packets means nothing trims the buffer, so it just runs off.</li><li><strong>Filter is untuned.</strong> Covariances aren't from the actual robot model or from real measurement noise, and the process model isn't using the correct relative-motion formula.</li><li><strong>Matrix formatting doesn't match the rest of the codebase.</strong> Annoying to read next to the ball filter.</li></ul>
+        <h2>Plan</h2>
+        <p>Two changes, and they only work together. <strong>LKF to EKF</strong>, and <strong>global frame to local (robot) frame</strong>.</p>
+        <p>We have to convert frames either way. It's only a question of where you do it.</p>
+        <p>Putting the state in the robot frame fixes the root cause, because wheel velocities are already local. Nothing needs converting on the wheel path at all. It flips the problem around: now it's vision, which is global, that has to come into the local frame to be used as a measurement.</p>
+        <p>That conversion is a rotation by heading, and now it happens inside the filter. Which is why an LKF stops working. The observation model goes nonlinear once heading is multiplying your position and velocity terms, and a Kalman filter assumes linear models. So you need the EKF and its Jacobians.</p>
+        <p>The other thing we get is uncertainty done properly. With the EKF, heading uncertainty sits in the state covariance and propagates into positional uncertainty during correction. With the LKF that never happened, since the rotation just used a point estimate of heading and ignored its error entirely.</p>
+        <table><thead><tr><th>Fix</th><th>Resolves</th></tr></thead><tbody><tr><td>Measure rewind time instead of hardcoding it</td><td>Hardcoded rewind</td></tr><tr><td>Convert vision into local frame, inside the filter</td><td>Conversion order</td></tr><tr><td>Add a real control input</td><td>Missing control</td></tr><tr><td>Circular buffer for the history</td><td>Unbounded growth</td></tr><tr><td>Unfreeze velocity during the update step</td><td>Knock-on of conversion order</td></tr><tr><td>Tune with the correct car model and real measurement noise</td><td>Untuned filter</td></tr><tr><td>Match covariance formatting to the ball filter</td><td>Consistency</td></tr></tbody></table>
+        <p>Velocity is frozen during updates right now because updates were messing up the velocity estimate. I'd argue that's just issue 2 showing up somewhere else, not something we should be working around. Building it will tell me if I'm right.</p>
+        <h2>Current State</h2>
+        <p>I'm confirming where the control input should come from before I start implementing. The best team in the world, TigersMannheim runs an EKF with a slightly different structure to incorperate IMU and wheel data. I think it will be really cool to incorperate smth new, the rewind KF, to see if it can work well. Credits to our old Software Lead Andrew for the rewind idea!</p>
+      </div>
+
+      <nav class="post-nav">
+        <span></span>
+        <a class="next" href="kalman-filter-for-ball-estimation.html"><span class="meta">Next</span><span class="title">Kalman Filter for Ball Estimation</span></a>
+      </nav>
+    </div>
+  </article>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="inner">
+      <div class="footer-top">
+        <h2 class="heading">Contact</h2>
+        <a class="link" href="mailto:lausingsamuel@gmail.com">lausingsamuel@gmail.com</a>
+      </div>
+      <div class="footer-bottom">
+        <p>© 2026 Samuel Lau</p>
+        <ul>
+          <li><a href="https://github.com/StarrryNight">GitHub</a></li>
+          <li><a href="https://linkedin.com/in/samuel-lau-68b844282">LinkedIn</a></li>
+          <li><a href="https://drive.google.com/file/d/14a2xltDFie9RSNopcXehIVePmRw_-OLX/view?usp=sharing" target="_blank" rel="noopener noreferrer">Resume</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="../js/main.js?v=1788621881005"></script>
+</body>
+</html>

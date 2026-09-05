@@ -5,7 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Timeline — Samuel Lau</title>
 <meta name="description" content="Where I have worked and what I did there.">
-<link rel="stylesheet" href="css/style.css">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="stylesheet" href="css/style.css?v=1788621881005">
 </head>
 <body>
 
@@ -22,7 +25,7 @@
         <li><a href="timeline.html">Timeline</a></li>
         <li><a href="life.html">Life</a></li>
         <li><a href="blog.html">Writing</a></li>
-        <li><a href="index.html#testimonials">Testimonials</a></li>
+        <li><a href="https://drive.google.com/file/d/14a2xltDFie9RSNopcXehIVePmRw_-OLX/view?usp=sharing" target="_blank" rel="noopener noreferrer">Resume</a></li>
         <li><a class="contact" href="mailto:lausingsamuel@gmail.com">Contact</a></li>
       </ul>
     </nav>
@@ -43,32 +46,58 @@
     <div class="wrap">
       <ol class="timeline" style="margin-top:0">
         <li>
-          <p class="meta when">2026 — now</p>
+          <p class="meta when">Sep 2025 — now</p>
           <div>
-            <h2>Machine Learning Researcher</h2>
-            <p class="where">de Boer Lab</p>
-            <ul class="points">
-              <li>Applied machine learning to regulatory genomics, focusing on transfer learning between large-scale biological datasets.</li>
-              <li>Built pipelines to train models on MPRA-derived sequence-to-expression data and adapt them to genomic RNA-seq prediction tasks.</li>
-              <li>Worked with noisy, high-dimensional data at scale, which took careful curation and efficient training workflows.</li>
-              <li>Bridged theoretical ML and real experimental data, which needed both the deep learning architectures and the biological context.</li>
-            </ul>
-          </div>
-        </li>
-        <li>
-          <p class="meta when">2025 — now</p>
-          <div>
-            <h2>Software Developer</h2>
+            <h2>Software Lead, Sensor Fusion / Controls / Firmware / Navigation</h2>
             <p class="where">UBC Thunderbots</p>
             <ul class="points">
-              <li>Analysed and improved enemy threat evaluation for defensive logic, adding unit tests and simulations that improved accurate threat blocking by 25%.</li>
-              <li>Expanded ball placement test coverage by parametrising scenarios from the 2023 RoboCup SSL technical challenge, cutting redundant code while covering every play case.</li>
+              <li>Designed and deployed a Kalman filter ball tracker with a physics-based motion model, Mahalanobis gating and tuned heuristics, cutting MSE by 29x and catastrophic errors by 30x against the legacy linear regression filter, measured against simulator ground truth under realistic sensor conditions.</li>
+              <li>Integrated an IMU into the robot localizer, implementing coordinate frame calibration and gyroscope and accelerometer fusion to improve state estimation between vision updates.</li>
+              <li>Re-architected the trajectory planner's cost evaluation, extracting collision checking into a dedicated class so that result caching and collision maths stopped being interleaved, making the planner's hottest path safe to modify.</li>
+              <li>Cut planner CPU by 18 to 20 percent by rewriting the collision evaluator to accumulate cost as it scans and abandon a candidate path the moment it exceeds the best cost found so far, skipping the two most expensive obstacle scans entirely, and verified selection was unchanged by asserting the chosen path's cost against a full recomputation on every tick.</li>
+              <li>Benchmarked the optimisation end to end against the previous release, recording CPU under identical simulated matches with the two teams swapped to rule out asymmetry between sides.</li>
+              <li>Added a stop primitive so a robot halts rather than driving into an unavoidable collision, triggering above 2.0 m/s within 0.2s of impact, and validated the trigger conditions in simulation.</li>
+              <li>Rebuilt tbots.py, the tool the whole team uses to launch the simulator, run tests and flash robots, adding an interactive prompt so common tasks no longer require memorising flags, and refactoring the entry point so adding an option touches one dataclass instead of several function signatures.</li>
+              <li>Expanded ball placement test coverage by parametrising scenarios from the 2023 RoboCup SSL technical challenge, eliminating redundant code while covering every play case, and wrote unit tests and simulations for defensive threat evaluation that improved accurate threat blocking by 25%.</li>
               <li>Refactored Thunderscope's icon handling, replacing custom SVG-based QIcon loaders with QtAwesome and improving UI rendering efficiency by 20%.</li>
             </ul>
           </div>
         </li>
         <li>
-          <p class="meta when">2024 — 2025</p>
+          <p class="meta when">Jan 2026 — Apr 2026</p>
+          <div>
+            <h2>Machine Learning Research Assistant (Co-op)</h2>
+            <p class="where">de Boer Lab, UBC SBME</p>
+            <ul class="points">
+              <li>Improved cross-dataset promoter prediction by 9% Pearson correlation, designing and fine-tuning CNN and RNN architectures with structured transfer learning pipelines on large-scale MPRA datasets.</li>
+              <li>Built a modular Snakemake pipeline for RNA-seq processing, automating preprocessing, alignment and quantification with metadata tracking and visualisation built in, which cut experiment iteration time and made runs reproducible.</li>
+              <li>Worked with noisy, high-dimensional biological data at scale, which took careful curation and efficient training workflows.</li>
+            </ul>
+          </div>
+        </li>
+        <li>
+          <p class="meta when">Sep 2024 — Aug 2025</p>
+          <div>
+            <h2>Website Development Team Member</h2>
+            <p class="where">UBC Rapid</p>
+            <ul class="points">
+              <li>Improved user experience by 25%, redesigning and implementing responsive React layouts with a consistent component structure and clearer visual hierarchy.</li>
+            </ul>
+          </div>
+        </li>
+        <li>
+          <p class="meta when">Sep 2024 — Aug 2025</p>
+          <div>
+            <h2>Modelling Subteam Member</h2>
+            <p class="where">UBC Rapid</p>
+            <ul class="points">
+              <li>Delivered 40+ functional hardware components, producing and iterating CAD models and 3D-printed parts for UBC stakeholders on tight turnarounds.</li>
+              <li>Obtained the SOLIDWORKS CSWA certification.</li>
+            </ul>
+          </div>
+        </li>
+        <li>
+          <p class="meta when">Sep 2024 — Aug 2025</p>
           <div>
             <h2>Exotic Filament Researcher</h2>
             <p class="where">UBC Rapid</p>
@@ -80,28 +109,6 @@
           </div>
         </li>
         <li>
-          <p class="meta when">2024 — 2025</p>
-          <div>
-            <h2>Modelling Team Member</h2>
-            <p class="where">UBC Rapid</p>
-            <ul class="points">
-              <li>Obtained the SOLIDWORKS CSWA certification.</li>
-              <li>Filled printing and modelling requests from several UBC-affiliated organisations.</li>
-              <li>Helped the UBC computer science department produce 40+ camera holders for monitoring.</li>
-            </ul>
-          </div>
-        </li>
-        <li>
-          <p class="meta when">2024</p>
-          <div>
-            <h2>Web Design Member</h2>
-            <p class="where">UBC Rapid</p>
-            <ul class="points">
-              <li>Resolved issues on the UBC Rapid website.</li>
-            </ul>
-          </div>
-        </li>
-        <li>
           <p class="meta when">2021 — 2023</p>
           <div>
             <h2>Java/Python Lead Instructor</h2>
@@ -109,6 +116,17 @@
             <ul class="points">
               <li>Taught programming to over 50 high school students, from introductory through to competitive level.</li>
               <li>Commended as one of the best instructors near the end of the term, actively improving the curriculum.</li>
+            </ul>
+          </div>
+        </li>
+        <li>
+          <p class="meta when">Sep 2024 — May 2029 (expected)</p>
+          <div>
+            <h2>Engineering Physics</h2>
+            <p class="where">University of British Columbia</p>
+            <ul class="points">
+              <li>GPA 4.20.</li>
+              <li>Trek Excellence Scholarship (2025), Dean's Scholar (2025).</li>
             </ul>
           </div>
         </li>
@@ -129,12 +147,13 @@
         <ul>
           <li><a href="https://github.com/StarrryNight">GitHub</a></li>
           <li><a href="https://linkedin.com/in/samuel-lau-68b844282">LinkedIn</a></li>
+          <li><a href="https://drive.google.com/file/d/14a2xltDFie9RSNopcXehIVePmRw_-OLX/view?usp=sharing" target="_blank" rel="noopener noreferrer">Resume</a></li>
         </ul>
       </div>
     </div>
   </div>
 </footer>
 
-<script src="js/main.js"></script>
+<script src="js/main.js?v=1788621881005"></script>
 </body>
 </html>

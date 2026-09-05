@@ -1,13 +1,88 @@
-summary: An autonomous rover platform — navigation, perception, and control.
+# Mars Habitat Rover — ENPH 253
+category: Robotics
+source: https://github.com/StarrryNight/ENPH253-Mars-Habitat-robot
 
+An autonomous rover that runs an 8×8 ft Mars-themed course with no human input: follows a
+line, finds and picks up aluminum rocks, spots Teletubbies, moves a tower, works a solar
+panel, and assembles habitat pieces. Built over the summer in the famous ENPH 253 course (a.k.a Robot Summer).
 ## The problem
 
-Describe the task the rover had to perform and the constraints it worked under.
+The competition gives you a taped course and a scoresheet, and everything after the start
+switch is on you. Ours had to do six things in one continuous run: line-follow between
+stations, stop at six rock checkpoints and pick up three aluminum ones (an inductive
+detector tells you which), report up to two unique Teletubbies with an LED flash, pick a
+tower off one marker and set it down at another, spin a solar panel, and grab a habitat
+piece and place it in a slot.
+
+
+Constraints:
+- **Fully autonomous.** No remote, no operator, one GO switch.
+- **18×18×18 inches, battery only.**
+- **No discrete H-bridge driver chips** — we rolled our own from MOSFETs, which is why the
+  motor driver carries an explicit coast-on-direction-reversal delay to keep from shooting
+  through the bridge. (WE SOLDERED LIKE 20 HBRIDGES IN TOTAL CUZ THEY KEPT BLOWING UP)
 
 ## What I built
 
-Your part of the system: the hardware, the software, the parts you owned versus the parts the team owned.
+I am in charged on some mechanical design/manufacturing and the entirity of software. This includes the entire github repository linked.
+
+**ESP32-S3 firmware (~7,300 lines of C++, PlatformIO/Arduino).** This ended up being the
+whole robot.
+
+- **Kiwi drivetrain.** Three omni wheels at 120°. Inverse mixing turns (vx, vy, ω) into
+  wheel targets; forward mixing turns encoder counts back into heading and displacement for
+  dead reckoning. Per-wheel velocity PID at 100 Hz off a hardware timer, with per-motor
+  stiction offsets because the three drivetrains don't break loose at the same duty cycle.
+- **A 31-state behavior machine.** Every leg of the course is a state, and each one either
+  line-follows, drives a fixed distance, spins until a sensor fires, or runs an arm
+  sequence. It's flat and explicit on purpose — when something goes wrong on the field you
+  want to read the state name off the OLED and know exactly where you are.
+- **Line following** off a 4-photoresistor array, with two side phototransistors used as
+  course markers. Corrections scale off the leg's commanded speed, so the same code follows
+  the line at 0.22 m/s on the rock run and 0.1 m/s through the habitat without retuning.
+- **The arm.** Four DOF: two bus servos (base and elbow pitch) plus hobby servos for wrist
+  yaw and claw. I wrote a 2-link IK solver so poses are written as reachable (x, y)
+  coordinates instead of joint angles, and a sequence runner that rotates the robot once,
+  then walks the poses with per-pose settle delays. Rock pickup poses are *sonar-relative* —
+  the x offset is added to a live distance reading, so the claw closes on where the rock
+  actually is.
+- **Everything else:** interrupt-driven metal detector with a 5-second latch and an explicit
+  clear before each probe, sonar, an SSD1306 status display, nanopb-framed protobuf over USB
+  serial, and a numpad teleop client for bench driving.
+
+**Raspberry Pi vision (Python).** A YOLO model exported to NCNN, classifying four
+Teletubbies and rocks. Threaded frame grabber (the camera driver hands you stale frames
+otherwise), letterboxing, NMS with the rock class dropped so it can't suppress a Teletubby
+box, and hue-based deduplication so the same Teletubby isn't reported twice. It sends one
+bool to the ESP32.
 
 ## Result
 
-What worked, what did not, and what you would change.
+**What worked.** The rock chain, the tower pickup and drop, and the habitat grab-and-place
+all ran end to end. The state machine was the right call — I could set one constant to enter
+the run at any state and bench-test a single leg, which is the only reason tuning six phases
+in a summer was tractable.
+
+**What didn't, and what I did about it.** Single-phase encoders can't tell we a wheel is
+slipping, so the sign comes from what we *commanded*. Combined with 1.7° of yaw quantization per tick, open-loop dead reckoning drifted
+badly over a run. My first version was full of blind fixed-angle turns, and they were the
+least reliable thing on the robot.
+
+So I replaced them, one at a time, with reactive searches: spin until the sonar reads a
+rock, spin until the phototransistor crosses the tower twice, strafe until the sonar sees
+the drop, sweep until both middle sensors are back on the line. Odometry became a rough
+progress meter, and sensors became the ground truth. Nearly every reliability bug I fixed
+after mid-July was some version of that same substitution.
+
+**What I'd change.**
+
+1. **Quadrature encoders, or actually finish the optical flow sensor.** I wrote a full
+   PMW3360 SPI driver for slip-free odometry and never calibrated its counts-per-metre, so
+   it sat unused. That's the single highest-leverage thing I left on the table.
+2. **Move the arm off dead reckoning entirely.** The IK solver has three stacked
+   hand-measured frame offsets and a 30 mm fudge for where the claw actually lands. It
+   works, but it's calibration, not geometry.
+3. **Stop pretending the RPi is a coprocessor.** The original design had it owning the state
+   machine; it ended up sending one boolean. I should have committed to "ESP32 runs the
+   robot, Pi is a camera" months earlier instead of maintaining a protocol for a partnership
+   that wasn't real.

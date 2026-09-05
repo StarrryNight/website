@@ -1,0 +1,29 @@
+summary: A sequence-to-expression model trained on ten times more annotated DNA than the model it builds on.
+category: Machine Learning
+crop: center center
+
+> Good models require rigorous benchmarking, just to compare.
+
+Work at the de Boer Lab with Abdul Muntakim Rafi and Sean Windle. The model side of the same project as [SnakeSeq](snakeseq.html).
+
+## Gap
+
+Yorzoi is the sequence-to-expression model we started from. DNA in, predicted gene expression out. It learns from 81 experiments, 71 of them native and SCRaMBLEd chromosome 9 strains, plus 10 yeast artificial chromosomes thrown in mostly to diversify the domain.
+
+Ten YACs isn't much. To me the YACs are the interesting part of that dataset, because they're chromosome scale naive DNA carrying inserts taken from human chromosomes. The model has to predict expression from sequence alone instead of leaning on anything it's memorised about yeast.
+
+So my question was pretty simple: what happens if we stop treating the YAC data as a garnish.
+
+## My solution
+
+I kept Yorzoi's architecture and added a head. The change isn't the network. It's that we train on ten times more annotated DNA, all of it processed and quality-checked through SnakeSeq, so every sample the model sees has known provenance and known quality.
+
+## Benchmarks
+
+A model that only looks good on data resembling its training set hasn't really been evaluated. So I used three benchmarks, each one further from what it trained on:
+
+1. **Hold-out testing** on the same dataset. The easy case.
+2. **The de Boer lab MPRA evaluation**, inherited from Yorzoi so the two are directly comparable. Predict over a 4992 bp window with the YFP start codon at 1000 bp, sum predicted expression across the YFP region, scatter that against ground truth.
+3. **The Shalem et al MPRA evaluation**, an outside dataset the model has no connection to at all.
+
+Alongside those I ran scaling law analysis, which asks something different. Not how good our model is now, but whether adding more data keeps helping. That's what tells us whether the answer to a weak result is more sequencing or a different architecture.

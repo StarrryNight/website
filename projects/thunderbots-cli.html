@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Thunderbots CLI — Samuel Lau</title>
+<meta name="description" content="Rebuilding the command line tool the whole team uses, so that getting a robot running stops being something you have to memorise.">
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="icon" href="../favicon.ico" sizes="any">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<link rel="stylesheet" href="../css/style.css?v=1788621881005">
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="site-header">
+  <div class="wrap">
+    <a href="../index.html">Samuel Lau</a>
+    <button class="nav-toggle" type="button" aria-expanded="false">Menu</button>
+    <nav class="site-nav">
+      <ul>
+        <li><a href="../index.html#work">Work</a></li>
+        <li><a href="../index.html#about">About</a></li>
+        <li><a href="../timeline.html">Timeline</a></li>
+        <li><a href="../life.html">Life</a></li>
+        <li><a href="../blog.html">Writing</a></li>
+        <li><a href="https://drive.google.com/file/d/14a2xltDFie9RSNopcXehIVePmRw_-OLX/view?usp=sharing" target="_blank" rel="noopener noreferrer">Resume</a></li>
+        <li><a class="contact" href="mailto:lausingsamuel@gmail.com">Contact</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+  <article class="post">
+    <div class="wrap">
+      <a href="../index.html#work">&larr; Work</a>
+
+      <header class="post-header">
+        <p class="meta">2026</p>
+        <h1>Thunderbots CLI</h1>
+        <p class="lede">Rebuilding the command line tool the whole team uses, so that getting a robot running stops being something you have to memorise.</p>
+        <p class="post-links"><a class="link" href="https://github.com/UBC-Thunderbots/Software/pull/3657">Source</a></p>
+      </header>
+
+      <div class="post-cover">
+        <img src="../images/project-thunderbots-cli.png" alt="">
+      </div>
+
+      <div class="post-body">
+        <p><code>./tbots.py</code> is how everyone on Thunderbots does everything. Launch the simulator, run a test, flash a robot, run against real hardware. It's the first thing a new member touches and the thing every member touches twenty times a day.</p>
+        <p>It was also a wall of flags. To run Thunderscope against the sim you had to know the action, the target, and which of a dozen options applied to you. If you knew the incantation it was fast. If you didn't you read the source or asked someone. I spent my first few weeks on the team being the person asking.</p>
+        <h2>Problem</h2>
+        <p>The obvious framing is &quot;the tool is hard to use&quot;, which leads to me writing better docs and changing nothing.</p>
+        <p>The real problem was that the knowledge lived in our heads and in argument parsing, not in the tool. Every new member paid the same tax I did, and the rest of us burned attention remembering flags for things we ran rarely. It's a small cost paid constantly by everyone, which is exactly the kind of thing that never gets fixed because it never looks urgent.</p>
+        <h2>My solution</h2>
+        <p>Running <code>./tbots.py</code> with no arguments now drops you into an interactive prompt instead of printing usage and quitting. It asks what you want to do, then narrows down: run Thunderscope, run a test, flash robots, or repeat something you ran before. Each option has a description that shows up inline as you move over it, so the menu explains itself instead of sending you to a manual.</p>
+        <p><video src="../images/tbots-cli-demo.mp4" controls muted playsinline preload="metadata"></video></p>
+        <p>I didn't replace anything though. Every flag still works exactly as it did and the interactive path just assembles the same command underneath. People who already know the tool lose nothing, new members get a way in, and I've only got one code path to maintain.</p>
+        <p>Two more things I added after, both from watching how people actually used it:</p>
+        <ul><li><strong>Repeating past commands.</strong> Keeps the last 50 invocations, so &quot;run the thing I just ran, again&quot; stops being a flag-typing exercise. Turned out to be the option people reach for most. (<a href="https://github.com/UBC-Thunderbots/Software/pull/3821">the change</a>)</li><li><strong>Run blue and run yellow</strong> as first class choices, because setting up the two teams was a frequent task needing a specific flag combination nobody remembered. (<a href="https://github.com/UBC-Thunderbots/Software/pull/3823">the change</a>)</li></ul>
+        <h2>Refactor</h2>
+        <p>Bolting a menu onto a tangled entry point would've just made the tangle worse, so I refactored while I was in there. Streamlined the main function, deleted flags that no longer did anything, and turned the pile of loose parameters threaded through the helpers into a dataclass. Adding an option used to mean touching several signatures. Now I add a field.</p>
+        <h2>Impact</h2>
+        <p>There's no algorithm here and no benchmark, which is sort of the point. This is the tool sitting between every member of our team and their work, and the change is that nobody has to have memorised anything to use it. Onboarding stopped including a lesson on command syntax and the small constant tax we were all paying went away.</p>
+        <p>This was more design work than engineering work. I had to figure out what people were actually trying to do, then make the tool ask them that instead of asking for arguments.</p>
+      </div>
+
+      <nav class="post-nav">
+        <a class="prev" href="trajectory-planner-improvements.html"><span class="meta">Previous</span><span class="title">Trajectory Planner Improvements</span></a>
+        <a class="next" href="snakeseq.html"><span class="meta">Next</span><span class="title">SnakeSeq</span></a>
+      </nav>
+    </div>
+  </article>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="inner">
+      <div class="footer-top">
+        <h2 class="heading">Contact</h2>
+        <a class="link" href="mailto:lausingsamuel@gmail.com">lausingsamuel@gmail.com</a>
+      </div>
+      <div class="footer-bottom">
+        <p>© 2026 Samuel Lau</p>
+        <ul>
+          <li><a href="https://github.com/StarrryNight">GitHub</a></li>
+          <li><a href="https://linkedin.com/in/samuel-lau-68b844282">LinkedIn</a></li>
+          <li><a href="https://drive.google.com/file/d/14a2xltDFie9RSNopcXehIVePmRw_-OLX/view?usp=sharing" target="_blank" rel="noopener noreferrer">Resume</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="../js/main.js?v=1788621881005"></script>
+</body>
+</html>

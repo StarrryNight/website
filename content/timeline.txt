@@ -2,30 +2,38 @@
 # First line:  when | title | where
 # Then one "- " bullet per line.
 
-2026 — now | Machine Learning Researcher | de Boer Lab
-- Applied machine learning to regulatory genomics, focusing on transfer learning between large-scale biological datasets.
-- Built pipelines to train models on MPRA-derived sequence-to-expression data and adapt them to genomic RNA-seq prediction tasks.
-- Worked with noisy, high-dimensional data at scale, which took careful curation and efficient training workflows.
-- Bridged theoretical ML and real experimental data, which needed both the deep learning architectures and the biological context.
-
-2025 — now | Software Developer | UBC Thunderbots
-- Analysed and improved enemy threat evaluation for defensive logic, adding unit tests and simulations that improved accurate threat blocking by 25%.
-- Expanded ball placement test coverage by parametrising scenarios from the 2023 RoboCup SSL technical challenge, cutting redundant code while covering every play case.
+Sep 2025 — now | Software Lead, Sensor Fusion / Controls / Firmware / Navigation | UBC Thunderbots
+- Designed and deployed a Kalman filter ball tracker with a physics-based motion model, Mahalanobis gating and tuned heuristics, cutting MSE by 29x and catastrophic errors by 30x against the legacy linear regression filter, measured against simulator ground truth under realistic sensor conditions.
+- Integrated an IMU into the robot localizer, implementing coordinate frame calibration and gyroscope and accelerometer fusion to improve state estimation between vision updates.
+- Re-architected the trajectory planner's cost evaluation, extracting collision checking into a dedicated class so that result caching and collision maths stopped being interleaved, making the planner's hottest path safe to modify.
+- Cut planner CPU by 18 to 20 percent by rewriting the collision evaluator to accumulate cost as it scans and abandon a candidate path the moment it exceeds the best cost found so far, skipping the two most expensive obstacle scans entirely, and verified selection was unchanged by asserting the chosen path's cost against a full recomputation on every tick.
+- Benchmarked the optimisation end to end against the previous release, recording CPU under identical simulated matches with the two teams swapped to rule out asymmetry between sides.
+- Added a stop primitive so a robot halts rather than driving into an unavoidable collision, triggering above 2.0 m/s within 0.2s of impact, and validated the trigger conditions in simulation.
+- Rebuilt tbots.py, the tool the whole team uses to launch the simulator, run tests and flash robots, adding an interactive prompt so common tasks no longer require memorising flags, and refactoring the entry point so adding an option touches one dataclass instead of several function signatures.
+- Expanded ball placement test coverage by parametrising scenarios from the 2023 RoboCup SSL technical challenge, eliminating redundant code while covering every play case, and wrote unit tests and simulations for defensive threat evaluation that improved accurate threat blocking by 25%.
 - Refactored Thunderscope's icon handling, replacing custom SVG-based QIcon loaders with QtAwesome and improving UI rendering efficiency by 20%.
 
-2024 — 2025 | Exotic Filament Researcher | UBC Rapid
+Jan 2026 — Apr 2026 | Machine Learning Research Assistant (Co-op) | de Boer Lab, UBC SBME
+- Improved cross-dataset promoter prediction by 9% Pearson correlation, designing and fine-tuning CNN and RNN architectures with structured transfer learning pipelines on large-scale MPRA datasets.
+- Built a modular Snakemake pipeline for RNA-seq processing, automating preprocessing, alignment and quantification with metadata tracking and visualisation built in, which cut experiment iteration time and made runs reproducible.
+- Worked with noisy, high-dimensional biological data at scale, which took careful curation and efficient training workflows.
+
+Sep 2024 — Aug 2025 | Website Development Team Member | UBC Rapid
+- Improved user experience by 25%, redesigning and implementing responsive React layouts with a consistent component structure and clearer visual hierarchy.
+
+Sep 2024 — Aug 2025 | Modelling Subteam Member | UBC Rapid
+- Delivered 40+ functional hardware components, producing and iterating CAD models and 3D-printed parts for UBC stakeholders on tight turnarounds.
+- Obtained the SOLIDWORKS CSWA certification.
+
+Sep 2024 — Aug 2025 | Exotic Filament Researcher | UBC Rapid
 - Wrote scientific reports on several exotic 3D printing filaments, covering material properties, tensile test results, and recommended printing parameters.
 - Ran tensile tests on exotic materials in a student lab, including uniaxial tensile and 3-point bending tests.
 - Followed ASTM standards for report generation.
 
-2024 — 2025 | Modelling Team Member | UBC Rapid
-- Obtained the SOLIDWORKS CSWA certification.
-- Filled printing and modelling requests from several UBC-affiliated organisations.
-- Helped the UBC computer science department produce 40+ camera holders for monitoring.
-
-2024 | Web Design Member | UBC Rapid
-- Resolved issues on the UBC Rapid website.
-
 2021 — 2023 | Java/Python Lead Instructor | CodingPals.org
 - Taught programming to over 50 high school students, from introductory through to competitive level.
 - Commended as one of the best instructors near the end of the term, actively improving the curriculum.
+
+Sep 2024 — May 2029 (expected) | Engineering Physics | University of British Columbia
+- GPA 4.20.
+- Trek Excellence Scholarship (2025), Dean's Scholar (2025).

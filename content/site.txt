@@ -7,6 +7,7 @@ location: Vancouver, CA
 email: lausingsamuel@gmail.com
 github: https://github.com/StarrryNight
 linkedin: https://linkedin.com/in/samuel-lau-68b844282
+resume: https://drive.google.com/file/d/14a2xltDFie9RSNopcXehIVePmRw_-OLX/view?usp=sharing
 
 # How long each hero image is held, in milliseconds.
-hero_interval: 6000
+hero_interval: 3000

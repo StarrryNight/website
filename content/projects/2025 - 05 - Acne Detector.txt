@@ -1,2 +1,3 @@
 summary: Detects and classifies acne types in skin images using deep learning.
+category: Machine Learning
 link: https://github.com/StarrryNight/Acne

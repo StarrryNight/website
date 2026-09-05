@@ -8,7 +8,7 @@
  * build step to run: the output is plain HTML, CSS and JS, and any
  * maths ships as finished markup rather than a script that renders it.
  */
-import { readdirSync, readFileSync, writeFileSync, mkdirSync, rmSync, copyFileSync, existsSync } from 'node:fs';
+import { readdirSync, readFileSync, writeFileSync, mkdirSync, rmSync, copyFileSync, existsSync, statSync } from 'node:fs';
 import { join, extname, basename } from 'node:path';
 import katex from 'katex';
 
@@ -24,7 +24,9 @@ const slug = (s) => s.toLowerCase()
   .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 
 const IMAGE_EXT = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg', '.avif'];
+const VIDEO_EXT = ['.mp4', '.webm', '.mov', '.m4v'];
 const isImage = (f) => IMAGE_EXT.includes(extname(f).toLowerCase());
+const isVideo = (f) => VIDEO_EXT.includes(extname(f).toLowerCase());
 
 /** Files in a folder, sorted by name, ignoring dotfiles. */
 const listDir = (dir) =>
@@ -115,11 +117,33 @@ function markdown(src) {
     .replace(/\\\$/g, '$');
 
   const inline = (t) => esc(t)
-    .replace(/!\[(.*?)\]\((.+?)\)/g, '<img src="$2" alt="$1">')
+    .replace(/!\[(.*?)\]\((.+?)\)/g, (_, alt, src) =>
+      isVideo(src)
+        ? '<video src="' + src + '" controls muted playsinline preload="metadata"></video>'
+        : '<img src="' + src + '" alt="' + alt + '">')
     .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
     .replace(/(^|[^*])\*([^*\n]+?)\*/g, '$1<em>$2</em>')
     .replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2">$1</a>')
     .replace(/`(.+?)`/g, '<code>$1</code>');
+
+  // A list can start directly under a line of prose with no blank line
+  // between, which is normal markdown. Insert the break so the list is not
+  // swallowed into the paragraph above it.
+  const isItem = (l) => /^[ \t]*(?:-|\d+\.)\s/.test(l);
+  const withBreaks = [];
+  let inList = false;
+  text.split('\n').forEach((line, i, all) => {
+    const prev = all[i - 1];
+    if (line.trim() === '') inList = false;
+    // Only break out of a paragraph, never out of a list that is already
+    // running - an item's own wrapped continuation lines are not items.
+    if (isItem(line) && !inList && prev !== undefined && prev.trim() !== '') {
+      withBreaks.push('');
+    }
+    if (isItem(line)) inList = true;
+    withBreaks.push(line);
+  });
+  text = withBreaks.join('\n');
 
   const cells = (row) => row.trim().replace(/^\||\|$/g, '').split('|').map((c) => c.trim());
 
@@ -151,12 +175,42 @@ function markdown(src) {
       out.push('<blockquote>' + inline(rows.map((l) => l.replace(/^>\s?/, '')).join(' ')) + '</blockquote>');
       continue;
     }
+    // A list item may wrap over several lines, and may have indented
+    // sub-items under it. A new item starts only on a line beginning with a
+    // marker; anything else continues the item above.
+    const listHtml = (lines, marker, tag) => {
+      const entries = [];
+      for (const line of lines) {
+        const m = line.match(marker);
+        if (m) entries.push({ depth: m[1].length ? 1 : 0, text: line.replace(marker, '') });
+        else if (entries.length) entries[entries.length - 1].text += ' ' + line.trim();
+      }
+
+      let html = '<' + tag + '>';
+      let open = false;      // whether a nested list is currently open
+      let item = false;      // whether a top level <li> is currently open
+      for (const e of entries) {
+        if (e.depth === 0) {
+          if (open) { html += '</' + tag + '>'; open = false; }
+          if (item) html += '</li>';
+          html += '<li>' + inline(e.text);
+          item = true;
+        } else {
+          if (!open) { html += '<' + tag + '>'; open = true; }
+          html += '<li>' + inline(e.text) + '</li>';
+        }
+      }
+      if (open) html += '</' + tag + '>';
+      if (item) html += '</li>';
+      return html + '</' + tag + '>';
+    };
+
     if (/^- /.test(b)) {
-      out.push('<ul>' + rows.map((l) => '<li>' + inline(l.replace(/^-\s+/, '')) + '</li>').join('') + '</ul>');
+      out.push(listHtml(rows, /^([ \t]*)-\s+/, 'ul'));
       continue;
     }
     if (/^\d+\. /.test(b)) {
-      out.push('<ol>' + rows.map((l) => '<li>' + inline(l.replace(/^\d+\.\s+/, '')) + '</li>').join('') + '</ol>');
+      out.push(listHtml(rows, /^([ \t]*)\d+\.\s+/, 'ol'));
       continue;
     }
 
@@ -184,6 +238,11 @@ const aboutRaw = readFileSync(join(C, 'about.txt'), 'utf8')
 const aboutParsed = parseFile(aboutRaw);
 const about = {
   stack: (aboutParsed.meta.stack || '').split(',').map((s) => s.trim()).filter(Boolean),
+  school: aboutParsed.meta.school || '',
+  degree: aboutParsed.meta.degree || '',
+  grad: aboutParsed.meta.grad || '',
+  awards: aboutParsed.meta.awards || '',
+  looking: aboutParsed.meta.looking || '',
   paragraphs: aboutParsed.body.split(/\n{2,}/).map((p) => p.trim()).filter(Boolean),
 };
 
@@ -227,6 +286,10 @@ for (const f of listDir(join(C, 'projects'))) {
     year, order, title,
     image: f,
     link: extra.meta.link || '',
+    source: extra.meta.source || '',
+    categories: (extra.meta.category || '').split(',').map((c) => c.trim()).filter(Boolean),
+    crop: extra.meta.crop || '',
+    status: extra.meta.status || '',
     summary: extra.meta.summary || '',
     body: extra.body,
     slug: slug(title),
@@ -254,7 +317,7 @@ const timeline = readFileSync(join(C, 'timeline.txt'), 'utf8')
   });
 
 /** Testimonials: the quote, then a final "— Name, Role" line. */
-const testimonials = readFileSync(join(C, 'testimonials.txt'), 'utf8')
+const testimonials = !existsSync(join(C, 'testimonials.txt')) ? [] : readFileSync(join(C, 'testimonials.txt'), 'utf8')
   .split('\n').filter((l) => !l.trim().startsWith('#')).join('\n')
   .split(/\n{2,}/).map((b) => b.trim()).filter(Boolean)
   .map((block) => {
@@ -293,10 +356,23 @@ function publishKatex() {
 }
 
 publishKatex();
+/* content/media/ - anything you want to embed in a post or project body.
+   Files keep their own name, so ![alt](demo.mp4) in a body just works. */
+const media = listDir(join(C, 'media')).filter((f) => isImage(f) || isVideo(f));
+for (const f of media) {
+  const target = basename(f, extname(f)) + extname(f).toLowerCase();
+  copyFileSync(join(C, 'media', f), join(IMG, target));
+}
+
 hero.forEach((f, i) => publish('hero', f, `hero-${i + 1}`));
 life.forEach((l, i) => publish('life', l.file, `life-${i + 1}`));
 projects.forEach((p) => { p.out = publish('projects', p.image, `project-${p.slug}`); });
 posts.forEach((p) => { if (p.cover) p.out = publish('blog', p.cover, `blog-${p.slug}`); });
+
+/** Rewrite bare src="name.ext" in a rendered body to the published media path. */
+const linkMedia = (html, prefix) =>
+  html.replace(/(<(?:img|video)[^>]*\bsrc=")(?!https?:|\/|\.\.\/|data:)([^"]+)(")/g,
+               (_, a, file, b) => a + prefix + 'images/' + file + b);
 
 /* ── shared chrome ──────────────────────────────────────────── */
 
@@ -306,11 +382,10 @@ const nav = (p) => `      <ul>
         <li><a href="${p}timeline.html">Timeline</a></li>
         <li><a href="${p}life.html">Life</a></li>
         <li><a href="${p}blog.html">Writing</a></li>
-        <li><a href="${p}index.html#testimonials">Testimonials</a></li>
-        <li><a class="contact" href="mailto:${site.email}">Contact</a></li>
+${testimonials.length ? `        <li><a href="${p}index.html#testimonials">Testimonials</a></li>\n` : ''}${site.resume ? `        <li><a href="${site.resume}" target="_blank" rel="noopener noreferrer">Resume</a></li>\n` : ''}        <li><a class="contact" href="mailto:${site.email}">Contact</a></li>
       </ul>`;
 
-const header = (p) => `<header class="site-header">
+const header = (p, over) => `<header class="site-header${over ? ' site-header--over' : ''}">
   <div class="wrap">
     <a href="${p}index.html">${esc(site.name)}</a>
     <button class="nav-toggle" type="button" aria-expanded="false">Menu</button>
@@ -330,26 +405,36 @@ const footer = () => `<footer class="site-footer">
       <div class="footer-bottom">
         <p>© ${new Date().getFullYear()} ${esc(site.name)}</p>
         <ul>
-${site.github ? `          <li><a href="${site.github}">GitHub</a></li>\n` : ''}${site.linkedin ? `          <li><a href="${site.linkedin}">LinkedIn</a></li>\n` : ''}        </ul>
+${site.github ? `          <li><a href="${site.github}">GitHub</a></li>\n` : ''}${site.linkedin ? `          <li><a href="${site.linkedin}">LinkedIn</a></li>\n` : ''}${site.resume ? `          <li><a href="${site.resume}" target="_blank" rel="noopener noreferrer">Resume</a></li>\n` : ''}        </ul>
       </div>
     </div>
   </div>
 </footer>`;
 
-const page = ({ title, description, prefix = '', body, math = false }) => `<!doctype html>
+/* Bumps whenever style.css or main.js changes, so a browser cannot serve a
+   stale copy of either after a rebuild. */
+const assetVersion = Math.max(
+  statSync(join('css', 'style.css')).mtimeMs,
+  statSync(join('js', 'main.js')).mtimeMs,
+).toFixed(0);
+
+const page = ({ title, description, prefix = '', body, math = false, over = false }) => `<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${esc(title)}</title>
 <meta name="description" content="${esc(description)}">
-<link rel="stylesheet" href="${prefix}css/style.css">${math ? `\n<link rel="stylesheet" href="${prefix}css/katex.min.css">` : ''}
+<link rel="icon" href="${prefix}favicon.svg" type="image/svg+xml">
+<link rel="icon" href="${prefix}favicon.ico" sizes="any">
+<link rel="apple-touch-icon" href="${prefix}apple-touch-icon.png">
+<link rel="stylesheet" href="${prefix}css/style.css?v=${assetVersion}">${math ? `\n<link rel="stylesheet" href="${prefix}css/katex.min.css">` : ''}
 </head>
 <body>
 
 <a class="skip-link" href="#main">Skip to content</a>
 
-${header(prefix)}
+${header(prefix, over)}
 
 <main id="main">
 ${body}
@@ -357,7 +442,7 @@ ${body}
 
 ${footer()}
 
-<script src="${prefix}js/main.js"></script>
+<script src="${prefix}js/main.js?v=${assetVersion}"></script>
 </body>
 </html>
 `;
@@ -372,6 +457,11 @@ ${lede ? `        <p class="lede">${esc(lede)}</p>\n` : ''}      </div>
 
 /* ── index.html ─────────────────────────────────────────────── */
 
+const ORDER = ['Robotics', 'Machine Learning', 'Software'];
+const allCategories = [...new Set(projects.flatMap((p) => p.categories))];
+const categories = ORDER.filter((c) => allCategories.includes(c))
+  .concat(allCategories.filter((c) => !ORDER.includes(c)));
+
 const years = [...new Set(projects.map((p) => p.year))].sort((a, b) => b - a);
 // Everything at or below the third-newest year is folded into one "~" bucket.
 const bucketOf = (y) => (years.indexOf(y) < 2 ? String(y) : String(years[2]));
@@ -381,13 +471,39 @@ const projectCard = (p) => {
   const hasPage = Boolean(p.body);
   const href = hasPage ? `projects/${p.slug}.html` : p.link;
   const open = href && !hasPage ? ' target="_blank" rel="noopener noreferrer"' : '';
-  return `        <li class="project" data-year="${bucketOf(p.year)}">
+  return `        <li class="project" data-year="${bucketOf(p.year)}" data-category="${esc(p.categories.join('|'))}">
           <a${href ? ` href="${href}"` : ''}${open}>
-            <img src="${IMG}/${p.out}" alt="${esc(p.title)}">
-${hasPage ? '            <span class="open">Open project</span>\n' : ''}            <span class="project-label"><h3>${esc(p.title)}</h3><span class="meta">${p.year}</span></span>
+            <img src="${IMG}/${p.out}" alt="${esc(p.title)}"${p.crop ? ` style="object-position: ${esc(p.crop)}"` : ''}>
+${hasPage ? '            <span class="open">Open project</span>\n' : ''}            <span class="project-label"><h3>${esc(p.title)}</h3>${p.status ? `<span class="meta status"><span class="dot" aria-hidden="true"></span>${esc(p.status)}</span>` : `<span class="meta">${p.year}</span>`}</span>
           </a>
         </li>`;
 };
+
+/* Empty when content/testimonials.txt is absent, which drops the section
+   and its nav link entirely rather than showing a bare heading. */
+const testimonialsSection = testimonials.length ? `\n  <!-- ── Testimonials ── -->
+  <section class="section" id="testimonials">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="section-head-row">
+          <h2 class="heading">Testimonials</h2>
+        </div>
+      </div>
+
+      <div class="card-grid">
+${testimonials.map((t) => `        <figure class="quote">
+          <blockquote>${esc(t.quote)}</blockquote>
+          <figcaption><span class="who">${esc(t.name)}</span><span class="role">${esc(t.role)}</span></figcaption>
+        </figure>`).join('\n')}
+      </div>
+    </div>
+` : '';
+
+/** About paragraphs are plain text, but allow [label](url) so a sentence can
+    carry a link without turning the whole section into markdown. */
+const aboutInline = (t) =>
+  esc(t).replace(/\[(.+?)\]\((https?:[^)]+)\)/g,
+    '<a class="link" href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
 
 const indexBody = `  <!-- ── Hero ── -->
   <section class="hero" data-hero data-interval="${site.hero_interval || 6000}">
@@ -421,12 +537,14 @@ ${hero.map((f, i) => `      <button type="button" data-hero-dot aria-current="${
           </div>
         </div>
 
-        <div class="filters" data-filters>
-          <button type="button" data-filter="all" aria-pressed="true">All</button>
-${buckets.map((b, i) => `          <button type="button" data-filter="${b}" aria-pressed="false">${b}${i === buckets.length - 1 && buckets.length > 1 ? '~' : ''}</button>`).join('\n')}
-        </div>
+
       </div>
     </div>
+
+        <div class="filters" data-filters="category">
+          <button type="button" data-filter="all" aria-pressed="true">All</button>
+${categories.map((c) => `          <button type="button" data-filter="${esc(c)}" aria-pressed="false">${esc(c)}</button>`).join('\n')}
+        </div>
 
     <ul class="projects-track" data-track>
 ${projects.map(projectCard).join('\n')}
@@ -445,21 +563,30 @@ ${projects.map(projectCard).join('\n')}
 
       <div class="intro-grid">
         <div class="intro-text">
-${about.paragraphs.map((p) => `          <p>${esc(p)}</p>`).join('\n')}
+${about.paragraphs.map((p) => `          <p>${aboutInline(p)}</p>`).join('\n')}
 
           <ul class="stack">
 ${about.stack.map((s) => `            <li>${esc(s)}</li>`).join('\n')}
           </ul>
 
+${about.looking ? `          <div class="looking">
+            <p class="meta">Looking for</p>
+            <p>${esc(about.looking)}</p>
+          </div>\n` : ''}
           <div class="actions">
             <a class="button" href="timeline.html">Timeline</a>
-            <a class="link" href="life.html">Life gallery</a>
+${site.resume ? `            <a class="link" href="${site.resume}" target="_blank" rel="noopener noreferrer">Resume</a>\n` : ''}            <a class="link" href="life.html">Life gallery</a>
           </div>
         </div>
 
-        <div class="portrait">
-          <img src="${IMG}/portrait${extname(site.portrait || 'portrait.jpg')}" alt="${esc(site.name)}">
-        </div>
+        <div class="intro-side">
+          <div class="portrait">
+            <img src="${IMG}/portrait${extname(site.portrait || 'portrait.jpg')}" alt="${esc(site.name)}">
+          </div>
+${about.school ? `          <div class="education">
+            <p class="meta">Education</p>
+            <p class="school">${esc(about.school)}</p>
+${about.degree ? `            <p class="where">${esc(about.degree)}</p>\n` : ''}${about.grad ? `            <p class="where">${esc(about.grad)}</p>\n` : ''}${about.awards ? `            <p class="awards">${esc(about.awards)}</p>\n` : ''}          </div>\n` : ''}        </div>
       </div>
     </div>
   </section>
@@ -480,23 +607,7 @@ ${posts.slice(0, 3).map((p) => postCard(p, '')).join('\n')}
     </div>
   </section>
 
-  <!-- ── Testimonials ── -->
-  <section class="section" id="testimonials">
-    <div class="wrap">
-      <div class="section-head">
-        <div class="section-head-row">
-          <h2 class="heading">Testimonials</h2>
-        </div>
-      </div>
-
-      <div class="card-grid">
-${testimonials.map((t) => `        <figure class="quote">
-          <blockquote>${esc(t.quote)}</blockquote>
-          <figcaption><span class="who">${esc(t.name)}</span><span class="role">${esc(t.role)}</span></figcaption>
-        </figure>`).join('\n')}
-      </div>
-    </div>
-  </section>`;
+${testimonialsSection}`;
 
 function postCard(p, prefix) {
   return `        <article class="card">
@@ -509,6 +620,7 @@ ${p.out ? `            <div class="card-thumb"><img src="${prefix}${IMG}/${p.out
 }
 
 writeFileSync('index.html', page({
+  over: true,
   title: `${site.name} — ${site.role}`,
   description: site.tagline,
   body: indexBody,
@@ -524,6 +636,30 @@ if (portraitFile) {
 }
 
 /* ── life.html ──────────────────────────────────────────────── */
+
+/* ── 404 ────────────────────────────────────────────────────
+   Served for any missing URL, so every link in it is absolute rather than
+   relative - a 404 at /projects/typo.html must still find the stylesheet. */
+
+writeFileSync('404.html', page({
+  title: `Page not found — ${site.name}`,
+  description: 'That page does not exist.',
+  prefix: '/',
+  body: `  <div class="notfound">
+    <div class="wrap">
+      <p class="meta">404</p>
+      <h1 class="heading">This page does not exist.</h1>
+      <p class="lede">The link may be out of date, or I may have moved something. Everything is reachable from the pages below.</p>
+      <ul class="notfound-links">
+        <li><a class="link" href="/index.html">Home</a></li>
+        <li><a class="link" href="/index.html#work">Work</a></li>
+        <li><a class="link" href="/blog.html">Writing</a></li>
+        <li><a class="link" href="/timeline.html">Timeline</a></li>
+        <li><a class="link" href="/life.html">Life</a></li>
+      </ul>
+    </div>
+  </div>`,
+}));
 
 writeFileSync('life.html', page({
   title: `${lifeMeta.heading || 'Life'} — ${site.name}`,
@@ -610,7 +746,7 @@ ${p.out ? `      <div class="post-cover">
         <img src="../${IMG}/${p.out}" alt="">
       </div>\n` : ''}
       <div class="post-body">
-${markdown(p.body)}
+${linkMedia(markdown(p.body), '../')}
       </div>
 
       <nav class="post-nav">
@@ -640,16 +776,23 @@ withPages.forEach((p, i) => {
       <a href="../index.html#work">&larr; Work</a>
 
       <header class="post-header">
-        <p class="meta">${p.year}</p>
+        <p class="meta">${p.year}${p.status ? ` <span class="status"><span class="dot" aria-hidden="true"></span>${esc(p.status)}</span>` : ''}</p>
         <h1>${esc(p.title)}</h1>
-${p.summary ? `        <p class="lede">${esc(p.summary)}</p>\n` : ''}      </header>
+${p.summary ? `        <p class="lede">${esc(p.summary)}</p>\n` : ''}${
+  p.link || p.source
+    ? `        <p class="post-links">${[
+        p.link ? `<a class="link" href="${esc(p.link)}">Visit project</a>` : '',
+        p.source ? `<a class="link" href="${esc(p.source)}">Source</a>` : '',
+      ].filter(Boolean).join(' ')}</p>\n`
+    : ''
+}      </header>
 
       <div class="post-cover">
         <img src="../${IMG}/${p.out}" alt="">
       </div>
 
       <div class="post-body">
-${markdown(p.body)}
+${linkMedia(markdown(p.body), '../')}
       </div>
 
       <nav class="post-nav">

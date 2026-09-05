@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>On-Robot Teletubby Detection — Samuel Lau</title>
+<meta name="description" content="Getting a YOLO model to run usefully on a Raspberry Pi bolted to a robot that cannot afford to wait for it.">
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="icon" href="../favicon.ico" sizes="any">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<link rel="stylesheet" href="../css/style.css?v=1788621881005">
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="site-header">
+  <div class="wrap">
+    <a href="../index.html">Samuel Lau</a>
+    <button class="nav-toggle" type="button" aria-expanded="false">Menu</button>
+    <nav class="site-nav">
+      <ul>
+        <li><a href="../index.html#work">Work</a></li>
+        <li><a href="../index.html#about">About</a></li>
+        <li><a href="../timeline.html">Timeline</a></li>
+        <li><a href="../life.html">Life</a></li>
+        <li><a href="../blog.html">Writing</a></li>
+        <li><a href="https://drive.google.com/file/d/14a2xltDFie9RSNopcXehIVePmRw_-OLX/view?usp=sharing" target="_blank" rel="noopener noreferrer">Resume</a></li>
+        <li><a class="contact" href="mailto:lausingsamuel@gmail.com">Contact</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+  <article class="post">
+    <div class="wrap">
+      <a href="../index.html#work">&larr; Work</a>
+
+      <header class="post-header">
+        <p class="meta">2026</p>
+        <h1>On-Robot Teletubby Detection</h1>
+        <p class="lede">Getting a YOLO model to run usefully on a Raspberry Pi bolted to a robot that cannot afford to wait for it.</p>
+        <p class="post-links"><a class="link" href="https://github.com/StarrryNight/ENPH253-Mars-Habitat-robot">Source</a></p>
+      </header>
+
+      <div class="post-cover">
+        <img src="../images/project-on-robot-teletubby-detection.png" alt="">
+      </div>
+
+      <div class="post-body">
+        <p>The vision half of the <a href="autonomous-mars-rover.html">Autonomous Mars Rover</a>. The course gives you points for spotting up to two unique Teletubbies and reporting each one with an LED flash.</p>
+        <p>Training the detector was the easy part. Four Teletubby classes plus rocks, a YOLO model, done. Everything interesting happened after that, when I had to make it run on a Raspberry Pi strapped to a robot that was already moving.</p>
+        <h2>Constraints</h2>
+        <p>A detector on my laptop answers one question: is it accurate. The same detector on our robot mid-run has to answer a few more at once.</p>
+        <ul><li><strong>Inference isn't free.</strong> The Pi shares its cores with the UART link to the ESP32 and the OS. If I let inference take every core, the thing actually driving the robot starves.</li><li><strong>A frame is only useful if it's recent.</strong> The robot is moving while inference runs, so an answer about where a Teletubby was 400ms ago is worse than no answer.</li><li><strong>The robot can't pause.</strong> My state machine is line-following and stopping at checkpoints on its own clock. Vision had to fit around that, not the other way round.</li></ul>
+        <h2>Inference</h2>
+        <p>The normal way to run a YOLO model is to let Ultralytics do it. One import, one call, boxes out. On a Pi that's the wrong trade. You're dragging a training framework and its whole dependency tree onto a robot to do one forward pass, and you get whatever preprocessing and postprocessing it decided on.</p>
+        <p>So I exported the weights to NCNN and drove the bare network myself: load the <code>.param</code> and <code>.bin</code>, letterbox the frame to a 320 square, convert to RGB float and transpose to CHW, run the extractor, then decode the raw output tensor by hand. Pull the class scores, take the argmax, threshold, run NMS through OpenCV.</p>
+        <p>That's more code than one Ultralytics call, and it's code I'd rather own. Everything that ended up mattering lives in the parts Ultralytics hides. Capping the thread count so inference leaves a core for the UART is one line on the net object. Dropping the rock class before NMS instead of after, which is the bug below, is only possible if you're the one calling NMS.</p>
+        <h2>Frames</h2>
+        <p>This one cost me the most time and it's the least obvious.</p>
+        <p><code>cv2.VideoCapture</code> buffers frames internally. I set <code>CAP_PROP_BUFFERSIZE</code> to 1 and the driver just kept buffering anyway. So when I read a frame at the moment I was ready to run inference, I got whatever was queued rather than what the camera was seeing. Inference takes long enough that the queue is always full, which meant every detection I got was about a position the robot had already left.</p>
+        <p>My fix was a background thread that reads the camera continuously and throws the results away, keeping only the newest frame behind a lock. <code>capture()</code> then grabs whatever's freshest instead of whatever's next in line. Camera runs at its own rate, inference runs at its own rate, and they stop being coupled.</p>
+        <h2>Bugs</h2>
+        <p><img src="../images/teletubby-detections.png" alt="Model output: laa-laa, po and Tinky winky detected, with a rock box overlapping laa-laa"></p>
+        <p><strong>Rocks were suppressing Teletubbies.</strong> The model detects rocks as a fifth class and our rover doesn't need them from vision. My instinct was to filter them out of the results. Too late. NMS runs first, and a confident rock box overlapping a Teletubby will delete the Teletubby. I had to drop ignored classes before NMS, not after.</p>
+        <p><strong>The same Teletubby counted twice.</strong> Scoring wants two unique ones so re-reporting one earns us nothing. The model tells me the class but I didn't trust it enough to use for identity, so I got uniqueness out of colour instead. Take the region inside the box, mask out unsaturated pixels so the grey background doesn't drag the result, use the median hue as a fingerprint. A detection only counts as new if its hue is far enough from every hue I've already recorded.</p>
+        <p>It works, and it has a bug I never fixed. OpenCV hue wraps at 180 and my comparison uses plain linear distance, so a red Teletubby sitting near the wraparound can read as new twice. The fix is circular distance and it's two lines. Still sitting in my code as a TODO.</p>
+        <h2>Result</h2>
+        <p>In the end the Pi sends the ESP32 a single boolean over UART, wrapped in protobuf. Not a class, not a confidence, not a position. One bit.</p>
+        <p>That wasn't the plan. The original design had the Pi as a coprocessor owning real decisions, and the honest outcome is it ended up as a camera that says yes or no. All the work above runs on the Pi and one bit of it crosses the wire. If I did it again I'd either commit to the Pi being a sensor from the start, or actually use what it computes.</p>
+      </div>
+
+      <nav class="post-nav">
+        <a class="prev" href="imu-integration.html"><span class="meta">Previous</span><span class="title">IMU Integration</span></a>
+        <a class="next" href="trajectory-planner-improvements.html"><span class="meta">Next</span><span class="title">Trajectory Planner Improvements</span></a>
+      </nav>
+    </div>
+  </article>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="inner">
+      <div class="footer-top">
+        <h2 class="heading">Contact</h2>
+        <a class="link" href="mailto:lausingsamuel@gmail.com">lausingsamuel@gmail.com</a>
+      </div>
+      <div class="footer-bottom">
+        <p>© 2026 Samuel Lau</p>
+        <ul>
+          <li><a href="https://github.com/StarrryNight">GitHub</a></li>
+          <li><a href="https://linkedin.com/in/samuel-lau-68b844282">LinkedIn</a></li>
+          <li><a href="https://drive.google.com/file/d/14a2xltDFie9RSNopcXehIVePmRw_-OLX/view?usp=sharing" target="_blank" rel="noopener noreferrer">Resume</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="../js/main.js?v=1788621881005"></script>
+</body>
+</html>

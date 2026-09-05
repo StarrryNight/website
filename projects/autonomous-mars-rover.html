@@ -4,8 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Autonomous Mars Rover — Samuel Lau</title>
-<meta name="description" content="An autonomous rover platform — navigation, perception, and control.">
-<link rel="stylesheet" href="../css/style.css">
+<meta name="description" content="">
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="icon" href="../favicon.ico" sizes="any">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<link rel="stylesheet" href="../css/style.css?v=1788621881005">
 </head>
 <body>
 
@@ -22,7 +25,7 @@
         <li><a href="../timeline.html">Timeline</a></li>
         <li><a href="../life.html">Life</a></li>
         <li><a href="../blog.html">Writing</a></li>
-        <li><a href="../index.html#testimonials">Testimonials</a></li>
+        <li><a href="https://drive.google.com/file/d/14a2xltDFie9RSNopcXehIVePmRw_-OLX/view?usp=sharing" target="_blank" rel="noopener noreferrer">Resume</a></li>
         <li><a class="contact" href="mailto:lausingsamuel@gmail.com">Contact</a></li>
       </ul>
     </nav>
@@ -37,7 +40,7 @@
       <header class="post-header">
         <p class="meta">2026</p>
         <h1>Autonomous Mars Rover</h1>
-        <p class="lede">An autonomous rover platform — navigation, perception, and control.</p>
+        <p class="post-links"><a class="link" href="https://github.com/StarrryNight/ENPH253-Mars-Habitat-robot">Source</a></p>
       </header>
 
       <div class="post-cover">
@@ -45,12 +48,21 @@
       </div>
 
       <div class="post-body">
-        <h2>The problem</h2>
-        <p>Describe the task the rover had to perform and the constraints it worked under.</p>
+        <p>An autonomous rover that runs an 8×8 ft Mars-themed course with no human input: follows a line, finds and picks up aluminum rocks, spots Teletubbies, moves a tower, works a solar panel, and assembles habitat pieces. Built over the summer in the famous ENPH 253 course (a.k.a Robot Summer). ## The problem</p>
+        <p>The competition gives you a taped course and a scoresheet, and everything after the start switch is on you. Ours had to do six things in one continuous run: line-follow between stations, stop at six rock checkpoints and pick up three aluminum ones (an inductive detector tells you which), report up to two unique Teletubbies with an LED flash, pick a tower off one marker and set it down at another, spin a solar panel, and grab a habitat piece and place it in a slot.</p>
+        <p>Constraints:</p>
+        <ul><li><strong>Fully autonomous.</strong> No remote, no operator, one GO switch.</li><li><strong>18×18×18 inches, battery only.</strong></li><li><strong>No discrete H-bridge driver chips</strong> — we rolled our own from MOSFETs, which is why the motor driver carries an explicit coast-on-direction-reversal delay to keep from shooting through the bridge. (WE SOLDERED LIKE 20 HBRIDGES IN TOTAL CUZ THEY KEPT BLOWING UP)</li></ul>
         <h2>What I built</h2>
-        <p>Your part of the system: the hardware, the software, the parts you owned versus the parts the team owned.</p>
+        <p>I am in charged on some mechanical design/manufacturing and the entirity of software. This includes the entire github repository linked.</p>
+        <p><strong>ESP32-S3 firmware (~7,300 lines of C++, PlatformIO/Arduino).</strong> This ended up being the whole robot.</p>
+        <ul><li><strong>Kiwi drivetrain.</strong> Three omni wheels at 120°. Inverse mixing turns (vx, vy, ω) into wheel targets; forward mixing turns encoder counts back into heading and displacement for dead reckoning. Per-wheel velocity PID at 100 Hz off a hardware timer, with per-motor stiction offsets because the three drivetrains don't break loose at the same duty cycle.</li><li><strong>A 31-state behavior machine.</strong> Every leg of the course is a state, and each one either line-follows, drives a fixed distance, spins until a sensor fires, or runs an arm sequence. It's flat and explicit on purpose — when something goes wrong on the field you want to read the state name off the OLED and know exactly where you are.</li><li><strong>Line following</strong> off a 4-photoresistor array, with two side phototransistors used as course markers. Corrections scale off the leg's commanded speed, so the same code follows the line at 0.22 m/s on the rock run and 0.1 m/s through the habitat without retuning.</li><li><strong>The arm.</strong> Four DOF: two bus servos (base and elbow pitch) plus hobby servos for wrist yaw and claw. I wrote a 2-link IK solver so poses are written as reachable (x, y) coordinates instead of joint angles, and a sequence runner that rotates the robot once, then walks the poses with per-pose settle delays. Rock pickup poses are <em>sonar-relative</em> — the x offset is added to a live distance reading, so the claw closes on where the rock actually is.</li><li><strong>Everything else:</strong> interrupt-driven metal detector with a 5-second latch and an explicit clear before each probe, sonar, an SSD1306 status display, nanopb-framed protobuf over USB serial, and a numpad teleop client for bench driving.</li></ul>
+        <p><strong>Raspberry Pi vision (Python).</strong> A YOLO model exported to NCNN, classifying four Teletubbies and rocks. Threaded frame grabber (the camera driver hands you stale frames otherwise), letterboxing, NMS with the rock class dropped so it can't suppress a Teletubby box, and hue-based deduplication so the same Teletubby isn't reported twice. It sends one bool to the ESP32.</p>
         <h2>Result</h2>
-        <p>What worked, what did not, and what you would change.</p>
+        <p><strong>What worked.</strong> The rock chain, the tower pickup and drop, and the habitat grab-and-place all ran end to end. The state machine was the right call — I could set one constant to enter the run at any state and bench-test a single leg, which is the only reason tuning six phases in a summer was tractable.</p>
+        <p><strong>What didn't, and what I did about it.</strong> Single-phase encoders can't tell we a wheel is slipping, so the sign comes from what we <em>commanded</em>. Combined with 1.7° of yaw quantization per tick, open-loop dead reckoning drifted badly over a run. My first version was full of blind fixed-angle turns, and they were the least reliable thing on the robot.</p>
+        <p>So I replaced them, one at a time, with reactive searches: spin until the sonar reads a rock, spin until the phototransistor crosses the tower twice, strafe until the sonar sees the drop, sweep until both middle sensors are back on the line. Odometry became a rough progress meter, and sensors became the ground truth. Nearly every reliability bug I fixed after mid-July was some version of that same substitution.</p>
+        <p><strong>What I'd change.</strong></p>
+        <ol><li><strong>Quadrature encoders, or actually finish the optical flow sensor.</strong> I wrote a full PMW3360 SPI driver for slip-free odometry and never calibrated its counts-per-metre, so it sat unused. That's the single highest-leverage thing I left on the table.</li><li><strong>Move the arm off dead reckoning entirely.</strong> The IK solver has three stacked hand-measured frame offsets and a 30 mm fudge for where the claw actually lands. It works, but it's calibration, not geometry.</li><li><strong>Stop pretending the RPi is a coprocessor.</strong> The original design had it owning the state machine; it ended up sending one boolean. I should have committed to &quot;ESP32 runs the robot, Pi is a camera&quot; months earlier instead of maintaining a protocol for a partnership that wasn't real.</li></ol>
       </div>
 
       <nav class="post-nav">
@@ -73,12 +85,13 @@
         <ul>
           <li><a href="https://github.com/StarrryNight">GitHub</a></li>
           <li><a href="https://linkedin.com/in/samuel-lau-68b844282">LinkedIn</a></li>
+          <li><a href="https://drive.google.com/file/d/14a2xltDFie9RSNopcXehIVePmRw_-OLX/view?usp=sharing" target="_blank" rel="noopener noreferrer">Resume</a></li>
         </ul>
       </div>
     </div>
   </div>
 </footer>
 
-<script src="../js/main.js"></script>
+<script src="../js/main.js?v=1788621881005"></script>
 </body>
 </html>

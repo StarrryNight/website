@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SnakeSeq — Samuel Lau</title>
+<meta name="description" content="A Snakemake pipeline that turns raw RNA-seq off yeast artificial chromosomes into training-ready data, with the quality of every sample on the record.">
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="icon" href="../favicon.ico" sizes="any">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<link rel="stylesheet" href="../css/style.css?v=1788621881005">
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="site-header">
+  <div class="wrap">
+    <a href="../index.html">Samuel Lau</a>
+    <button class="nav-toggle" type="button" aria-expanded="false">Menu</button>
+    <nav class="site-nav">
+      <ul>
+        <li><a href="../index.html#work">Work</a></li>
+        <li><a href="../index.html#about">About</a></li>
+        <li><a href="../timeline.html">Timeline</a></li>
+        <li><a href="../life.html">Life</a></li>
+        <li><a href="../blog.html">Writing</a></li>
+        <li><a href="https://drive.google.com/file/d/14a2xltDFie9RSNopcXehIVePmRw_-OLX/view?usp=sharing" target="_blank" rel="noopener noreferrer">Resume</a></li>
+        <li><a class="contact" href="mailto:lausingsamuel@gmail.com">Contact</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+  <article class="post">
+    <div class="wrap">
+      <a href="../index.html#work">&larr; Work</a>
+
+      <header class="post-header">
+        <p class="meta">2026</p>
+        <h1>SnakeSeq</h1>
+        <p class="lede">A Snakemake pipeline that turns raw RNA-seq off yeast artificial chromosomes into training-ready data, with the quality of every sample on the record.</p>
+      </header>
+
+      <div class="post-cover">
+        <img src="../images/project-snakeseq.png" alt="">
+      </div>
+
+      <div class="post-body">
+        <blockquote>Training is worthless without good data.</blockquote>
+        <p>Work at the de Boer Lab with Abdul Muntakim Rafi and Sean Windle.</p>
+        <h2>Why</h2>
+        <p>We train sequence-to-expression models. I give the model a stretch of DNA and ask it to predict how strongly the genes in it get expressed. Ours learns from yeast artificial chromosomes, foreign DNA stuck into yeast so it behaves like a seventeenth chromosome. It's naive DNA, meaning it was never under evolutionary selection pressure in yeast, which is exactly what makes it useful for teaching a model what sequence alone implies.</p>
+        <p>Getting from a sequencing run to something a model can learn from is a long chain of steps, and when I got there we were doing it with bash scripts. One sample at a time, monitored by hand, dependencies installed from scratch, settings tracked in somebody's head. If I wanted to look at the data I had to write another script.</p>
+        <p>The worse problem was that the quality of our data was invisible to us. If we train on a bad sample we find out way later, and by then we can't easily tell which sample it was. Transparency in training data isn't a nice-to-have here. It's the only reason I'd trust the model afterwards.</p>
+        <h2>Snakemake</h2>
+        <p>My first instinct was to write a better bash script. That fails for a specific reason.</p>
+        <p>An RNA-seq run is a dependency graph, not a sequence. Each sample goes through the same chain of steps, some depend on others, some are independent, and any of them can fall over halfway.</p>
+        <p>A script encodes that graph implicitly, in whatever order I happened to write the lines. Which means the script can't tell me what still needs doing. When step four died on sample 40 of 73, I either reran everything or worked out by hand what had survived.</p>
+        <p>Snakemake makes the graph explicit. I declare what each rule produces and what it needs, and it figures out the rest. What can run in parallel, what's already done, what has to be redone because an input changed. That one property is what made everything else possible.</p>
+        <h2>Structure</h2>
+        <pre><code>Snakefile            the top level graph
+workflow/            the rules themselves
+config/              per run settings, nothing hardcoded
+profiles/slurm/      how jobs get handed to the cluster scheduler
+check.py             quality thresholds and flagging
+setup.sh             one command environment bootstrap
+rerun_sample.sh      redo a single sample without touching the rest
+requirements.txt     pinned dependencies</code></pre>
+        <p>Three decisions in there are doing most of the work.</p>
+        <p><strong>I kept the SLURM profile separate from the rules.</strong> The workflow doesn't know it's on a cluster. Snakemake reads the profile and submits each job to the scheduler with the right resources, which is why 73 samples run at once instead of one after another, and why the same pipeline still runs on my laptop when I'm debugging.</p>
+        <p><strong>Configuration is data, not code.</strong> Sample lists, paths and thresholds live in <code>config/</code>, so a new batch is a config change instead of an edit to the pipeline. The pipeline I ran last month is the same pipeline I run today, which is the only way the outputs stay comparable.</p>
+        <p><strong>I wrote <code>rerun_sample.sh</code> because reruns are the normal case, not the exception.</strong> In practice I was always redoing one sample that failed, or one where I'd changed a parameter. Making that a one liner instead of a careful manual exercise is what stops people quietly working around the pipeline.</p>
+        <h2>Pipeline</h2>
+        <p>One command runs the whole thing on the cluster, in parallel, over any number of samples. Setting it up is <code>setup.sh</code> and a config file instead of a dependency hunt.</p>
+        <p>Every run records its own metadata so each sample carries its provenance with it:</p>
+        <ul><li>Name, source chromosome, location and length</li><li>The FASTQ sources it came from</li><li>Alignment results, including percent mapped to the YAC, to yeast, and unmapped</li><li>Where it ranks against human chromosome mappings</li></ul>
+        <p><strong>Bad data flags itself, but the pipeline doesn't act on it.</strong> <code>check.py</code> compares each statistic against a threshold and sticks a flag on that sample's metadata. Warning means proceed with caution. Error means take it out of the dataset.</p>
+        <p>I made that split on purpose. A pipeline that silently drops samples is a pipeline quietly deciding what our model learns from, and we'd find out months later when a result looked weird. So SnakeSeq flags and records, and one of us fetches the flags and decides. Judgement stays with a person, bookkeeping doesn't.</p>
+        <p>It also catches things a summary statistic never would. Below is a coverage plot for one of our YACs, and I can see two problems at a glance that no single number reports: a deleted region in the middle of the insert where coverage drops to nothing, and a strip of extra space at the right hand end left over from cropping.</p>
+        <p><img src="../images/snakeseq-coverage.png" alt="Coverage across one YAC insert, showing a deleted region and extra space from cropping"></p>
+        <p>That's why I have it plot every sample instead of only the ones that trip a threshold. The numbers tell me which samples to distrust. The plots tell me why, and every so often tell me about a sample the numbers said was fine.</p>
+        <h2>Results</h2>
+        <p><strong>We processed 73 YACs, dismissed 8, kept 65 for training.</strong> The eight went for length, unmapped rate, or mapping quality, and each one carries the number that disqualified it.</p>
+        <p>The 65 that survived hold up. FASTQ analysis showed high average quality, a normal distribution, uniform segment lengths, few Ns, and overrepresented sequences that turned out to be adapters rather than anything biological. PCA showed negligible batch effects and only six mild outliers, blending in well against the references. Gene expression correlates with reference yeast at Spearman r = 0.863, with most genes sitting near the identity line, which says the YACs produce broadly similar expression profiles to normal yeast.</p>
+        <p>That last check is the one I cared about most. It's our evidence that this data is worth training on at all.</p>
+        <p>RNA-seq performed by Alisha and Danielle.</p>
+      </div>
+
+      <nav class="post-nav">
+        <a class="prev" href="thunderbots-cli.html"><span class="meta">Previous</span><span class="title">Thunderbots CLI</span></a>
+        <a class="next" href="yakformer.html"><span class="meta">Next</span><span class="title">Yakformer</span></a>
+      </nav>
+    </div>
+  </article>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="inner">
+      <div class="footer-top">
+        <h2 class="heading">Contact</h2>
+        <a class="link" href="mailto:lausingsamuel@gmail.com">lausingsamuel@gmail.com</a>
+      </div>
+      <div class="footer-bottom">
+        <p>© 2026 Samuel Lau</p>
+        <ul>
+          <li><a href="https://github.com/StarrryNight">GitHub</a></li>
+          <li><a href="https://linkedin.com/in/samuel-lau-68b844282">LinkedIn</a></li>
+          <li><a href="https://drive.google.com/file/d/14a2xltDFie9RSNopcXehIVePmRw_-OLX/view?usp=sharing" target="_blank" rel="noopener noreferrer">Resume</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="../js/main.js?v=1788621881005"></script>
+</body>
+</html>

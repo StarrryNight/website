@@ -9,6 +9,6 @@ I am an Engineering Physics student at UBC, working on the boundary between theo
 
 Engineering Physics developed my software, mechanical, and electrical skills as one integrated skillset rather than three separate ones. That cross-disciplinary fluency is what lets me find solutions at the intersection of all three. The math- and physics-heavy coursework built a different asset: physical intuition sharp enough to reason naturally about how a robot perceives its environment and how it should act in response.
 
-I built most of my technical skills through design teams and personal projects. Last year, I joined UBC Thunderbots. We build a fleet autonomous soccer-playing robots that compete in global tournaments. This year, I serve as a lead of the software subteam, with a focus on motion, state estimation, controls, and navigation. I enjoy finding solutions for these problems that lie between sofware and the physical robot.
+I built most of my technical skills through design teams and personal projects. Last year, I joined UBC Thunderbots. We build a fleet autonomous soccer-playing robots that compete in global tournaments. This year, I serve as a lead of the software subteam, with a focus on motion, state estimation, controls, and navigation. I enjoy finding solutions for these problems that lie between software and the physical robot.
 
 Outside of it, I enjoy playing guitar, singing, playing soccer, and eating. I am also an executive of UBC HKSA. I value genuine connections with like-minded people.

@@ -5,13 +5,16 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Samuel Lau — Engineering Physics Student</title>
 <meta name="description" content="Engineering Physics student at UBC. Software, AI, robotics, physics.">
-<link rel="stylesheet" href="css/style.css">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="stylesheet" href="css/style.css?v=1788621881005">
 </head>
 <body>
 
 <a class="skip-link" href="#main">Skip to content</a>
 
-<header class="site-header">
+<header class="site-header site-header--over">
   <div class="wrap">
     <a href="index.html">Samuel Lau</a>
     <button class="nav-toggle" type="button" aria-expanded="false">Menu</button>
@@ -22,7 +25,7 @@
         <li><a href="timeline.html">Timeline</a></li>
         <li><a href="life.html">Life</a></li>
         <li><a href="blog.html">Writing</a></li>
-        <li><a href="index.html#testimonials">Testimonials</a></li>
+        <li><a href="https://drive.google.com/file/d/14a2xltDFie9RSNopcXehIVePmRw_-OLX/view?usp=sharing" target="_blank" rel="noopener noreferrer">Resume</a></li>
         <li><a class="contact" href="mailto:lausingsamuel@gmail.com">Contact</a></li>
       </ul>
     </nav>
@@ -31,17 +34,25 @@
 
 <main id="main">
   <!-- ── Hero ── -->
-  <section class="hero" data-hero data-interval="6000">
-    <img src="images/hero-1.svg" alt="" data-hero-slide>
-    <img src="images/hero-2.svg" alt="" data-hero-slide hidden>
-    <img src="images/hero-3.svg" alt="" data-hero-slide hidden>
-    <img src="images/hero-4.svg" alt="" data-hero-slide hidden>
+  <section class="hero" data-hero data-interval="3000">
+    <img src="images/hero-1.jpg" alt="" data-hero-slide>
+    <img src="images/hero-2.jpg" alt="" data-hero-slide hidden>
+    <img src="images/hero-3.png" alt="" data-hero-slide hidden>
+    <img src="images/hero-4.jpg" alt="" data-hero-slide hidden>
+    <img src="images/hero-5.jpg" alt="" data-hero-slide hidden>
+    <img src="images/hero-6.jpg" alt="" data-hero-slide hidden>
+    <img src="images/hero-7.jpg" alt="" data-hero-slide hidden>
+    <img src="images/hero-8.jpg" alt="" data-hero-slide hidden>
 
     <div class="hero-dots">
       <button type="button" data-hero-dot aria-current="true" aria-label="Show image 1"></button>
       <button type="button" data-hero-dot aria-current="false" aria-label="Show image 2"></button>
       <button type="button" data-hero-dot aria-current="false" aria-label="Show image 3"></button>
       <button type="button" data-hero-dot aria-current="false" aria-label="Show image 4"></button>
+      <button type="button" data-hero-dot aria-current="false" aria-label="Show image 5"></button>
+      <button type="button" data-hero-dot aria-current="false" aria-label="Show image 6"></button>
+      <button type="button" data-hero-dot aria-current="false" aria-label="Show image 7"></button>
+      <button type="button" data-hero-dot aria-current="false" aria-label="Show image 8"></button>
     </div>
 
     <div class="wrap">
@@ -60,7 +71,7 @@
         <div class="section-head-row">
           <h2 class="heading">Work</h2>
           <div class="projects-count">
-            <span class="tally" data-track-tally>01 / 17</span>
+            <span class="tally" data-track-tally>01 / 21</span>
             <span class="projects-arrows">
               <button type="button" data-track-prev aria-label="Previous project">&larr;</button>
               <button type="button" data-track-next aria-label="Next project">&rarr;</button>
@@ -68,122 +79,154 @@
           </div>
         </div>
 
-        <div class="filters" data-filters>
-          <button type="button" data-filter="all" aria-pressed="true">All</button>
-          <button type="button" data-filter="2026" aria-pressed="false">2026</button>
-          <button type="button" data-filter="2025" aria-pressed="false">2025</button>
-          <button type="button" data-filter="2024" aria-pressed="false">2024~</button>
-        </div>
+
       </div>
     </div>
 
+        <div class="filters" data-filters="category">
+          <button type="button" data-filter="all" aria-pressed="true">All</button>
+          <button type="button" data-filter="Robotics" aria-pressed="false">Robotics</button>
+          <button type="button" data-filter="Machine Learning" aria-pressed="false">Machine Learning</button>
+          <button type="button" data-filter="Software" aria-pressed="false">Software</button>
+        </div>
+
     <ul class="projects-track" data-track>
-        <li class="project" data-year="2026">
+        <li class="project" data-year="2026" data-category="Robotics">
+          <a href="projects/robot-localizer-redesign.html">
+            <img src="images/project-robot-localizer-redesign.jpg" alt="Robot Localizer Redesign">
+            <span class="open">Open project</span>
+            <span class="project-label"><h3>Robot Localizer Redesign</h3><span class="meta status"><span class="dot" aria-hidden="true"></span>Ongoing</span></span>
+          </a>
+        </li>
+        <li class="project" data-year="2026" data-category="Robotics">
           <a href="projects/kalman-filter-for-ball-estimation.html">
             <img src="images/project-kalman-filter-for-ball-estimation.png" alt="Kalman Filter for Ball Estimation">
             <span class="open">Open project</span>
             <span class="project-label"><h3>Kalman Filter for Ball Estimation</h3><span class="meta">2026</span></span>
           </a>
         </li>
-        <li class="project" data-year="2026">
+        <li class="project" data-year="2026" data-category="Robotics">
           <a href="projects/autonomous-mars-rover.html">
             <img src="images/project-autonomous-mars-rover.png" alt="Autonomous Mars Rover">
             <span class="open">Open project</span>
             <span class="project-label"><h3>Autonomous Mars Rover</h3><span class="meta">2026</span></span>
           </a>
         </li>
-        <li class="project" data-year="2026">
+        <li class="project" data-year="2026" data-category="Robotics">
           <a href="projects/imu-integration.html">
             <img src="images/project-imu-integration.png" alt="IMU Integration">
             <span class="open">Open project</span>
             <span class="project-label"><h3>IMU Integration</h3><span class="meta">2026</span></span>
           </a>
         </li>
-        <li class="project" data-year="2026">
-          <a>
-            <img src="images/project-snakeseq.png" alt="SnakeSeq">
+        <li class="project" data-year="2026" data-category="Robotics|Machine Learning">
+          <a href="projects/on-robot-teletubby-detection.html">
+            <img src="images/project-on-robot-teletubby-detection.png" alt="On-Robot Teletubby Detection">
+            <span class="open">Open project</span>
+            <span class="project-label"><h3>On-Robot Teletubby Detection</h3><span class="meta">2026</span></span>
+          </a>
+        </li>
+        <li class="project" data-year="2026" data-category="Robotics">
+          <a href="projects/trajectory-planner-improvements.html">
+            <img src="images/project-trajectory-planner-improvements.png" alt="Trajectory Planner Improvements">
+            <span class="open">Open project</span>
+            <span class="project-label"><h3>Trajectory Planner Improvements</h3><span class="meta">2026</span></span>
+          </a>
+        </li>
+        <li class="project" data-year="2026" data-category="Software">
+          <a href="projects/thunderbots-cli.html">
+            <img src="images/project-thunderbots-cli.png" alt="Thunderbots CLI">
+            <span class="open">Open project</span>
+            <span class="project-label"><h3>Thunderbots CLI</h3><span class="meta">2026</span></span>
+          </a>
+        </li>
+        <li class="project" data-year="2026" data-category="Machine Learning">
+          <a href="projects/snakeseq.html">
+            <img src="images/project-snakeseq.png" alt="SnakeSeq" style="object-position: center center">
+            <span class="open">Open project</span>
             <span class="project-label"><h3>SnakeSeq</h3><span class="meta">2026</span></span>
           </a>
         </li>
-        <li class="project" data-year="2026">
-          <a>
-            <img src="images/project-yakformer.png" alt="Yakformer">
+        <li class="project" data-year="2026" data-category="Machine Learning">
+          <a href="projects/yakformer.html">
+            <img src="images/project-yakformer.png" alt="Yakformer" style="object-position: center center">
+            <span class="open">Open project</span>
             <span class="project-label"><h3>Yakformer</h3><span class="meta">2026</span></span>
           </a>
         </li>
-        <li class="project" data-year="2025">
+        <li class="project" data-year="2025" data-category="Software">
           <a href="projects/neuromap.html">
             <img src="images/project-neuromap.png" alt="Neuromap">
             <span class="open">Open project</span>
             <span class="project-label"><h3>Neuromap</h3><span class="meta">2025</span></span>
           </a>
         </li>
-        <li class="project" data-year="2025">
+        <li class="project" data-year="2025" data-category="Software">
           <a href="projects/portfolio-website.html">
             <img src="images/project-portfolio-website.png" alt="Portfolio Website">
             <span class="open">Open project</span>
             <span class="project-label"><h3>Portfolio Website</h3><span class="meta">2025</span></span>
           </a>
         </li>
-        <li class="project" data-year="2025">
+        <li class="project" data-year="2025" data-category="Software">
           <a href="projects/audio-spatial-transformer.html">
             <img src="images/project-audio-spatial-transformer.png" alt="Audio Spatial Transformer">
             <span class="open">Open project</span>
             <span class="project-label"><h3>Audio Spatial Transformer</h3><span class="meta">2025</span></span>
           </a>
         </li>
-        <li class="project" data-year="2025">
+        <li class="project" data-year="2025" data-category="Software">
           <a href="projects/physics-engine.html">
             <img src="images/project-physics-engine.png" alt="Physics Engine">
             <span class="open">Open project</span>
             <span class="project-label"><h3>Physics Engine</h3><span class="meta">2025</span></span>
           </a>
         </li>
-        <li class="project" data-year="2025">
+        <li class="project" data-year="2025" data-category="Machine Learning">
           <a href="https://github.com/StarrryNight/Acne" target="_blank" rel="noopener noreferrer">
             <img src="images/project-acne-detector.png" alt="Acne Detector">
             <span class="project-label"><h3>Acne Detector</h3><span class="meta">2025</span></span>
           </a>
         </li>
-        <li class="project" data-year="2025">
+        <li class="project" data-year="2025" data-category="Robotics">
           <a>
-            <img src="images/project-underwater-autonomous-claw.png" alt="Underwater Autonomous Claw">
+            <img src="images/project-underwater-autonomous-claw.png" alt="Underwater Autonomous Claw" style="object-position: center center">
             <span class="project-label"><h3>Underwater Autonomous Claw</h3><span class="meta">2025</span></span>
           </a>
         </li>
-        <li class="project" data-year="2025">
+        <li class="project" data-year="2025" data-category="Machine Learning">
           <a href="https://github.com/StarrryNight/Rage-Detector" target="_blank" rel="noopener noreferrer">
             <img src="images/project-rage-detector.jpg" alt="Rage Detector">
             <span class="project-label"><h3>Rage Detector</h3><span class="meta">2025</span></span>
           </a>
         </li>
-        <li class="project" data-year="2025">
+        <li class="project" data-year="2025" data-category="Machine Learning">
           <a href="https://github.com/StarrryNight/Pytorch-FPL" target="_blank" rel="noopener noreferrer">
             <img src="images/project-fantasy-football-point-predictor.png" alt="Fantasy Football Point Predictor">
             <span class="project-label"><h3>Fantasy Football Point Predictor</h3><span class="meta">2025</span></span>
           </a>
         </li>
-        <li class="project" data-year="2025">
+        <li class="project" data-year="2025" data-category="Software">
           <a href="https://github.com/StarrryNight/F.U.R.I.N.A" target="_blank" rel="noopener noreferrer">
             <img src="images/project-f-u-r-i-n-a.png" alt="F.U.R.I.N.A">
             <span class="project-label"><h3>F.U.R.I.N.A</h3><span class="meta">2025</span></span>
           </a>
         </li>
-        <li class="project" data-year="2024">
+        <li class="project" data-year="2024" data-category="Software">
           <a href="projects/color-palette-generator.html">
             <img src="images/project-color-palette-generator.png" alt="Color Palette Generator">
             <span class="open">Open project</span>
             <span class="project-label"><h3>Color Palette Generator</h3><span class="meta">2024</span></span>
           </a>
         </li>
-        <li class="project" data-year="2024">
+        <li class="project" data-year="2024" data-category="Software">
           <a href="projects/tetris-practice-simulator.html">
             <img src="images/project-tetris-practice-simulator.png" alt="Tetris Practice Simulator">
             <span class="open">Open project</span>
             <span class="project-label"><h3>Tetris Practice Simulator</h3><span class="meta">2023</span></span>
           </a>
         </li>
-        <li class="project" data-year="2024">
+        <li class="project" data-year="2024" data-category="Software">
           <a href="https://chromewebstore.google.com/detail/tabcloser/ockefngjdpppnlhgkebeleakbinmlmec?authuser=0&hl=en-US" target="_blank" rel="noopener noreferrer">
             <img src="images/project-tabs-closer.png" alt="Tabs Closer">
             <span class="project-label"><h3>Tabs Closer</h3><span class="meta">2022</span></span>
@@ -204,28 +247,47 @@
 
       <div class="intro-grid">
         <div class="intro-text">
-          <p>I am an Engineering Physics student at UBC, working on the boundary between theory and physicl systems. I am particularly interested in making robots behave: State estaimtion, controls, robot software, and navigation etc. I find these field tremendously interesting as it blend in cool knowledge like probabilities, physics, linear algebra, and calculus.</p>
+          <p>I am an Engineering Physics student at UBC, working on the boundary between theory and physical systems. I am particularly interested in making robots behave: State estaimtion, controls, robot software, and navigation etc. I find these field tremendously interesting as it blend in cool knowledge like probabilities, physics, linear algebra, and calculus.</p>
           <p>Engineering Physics developed my software, mechanical, and electrical skills as one integrated skillset rather than three separate ones. That cross-disciplinary fluency is what lets me find solutions at the intersection of all three. The math- and physics-heavy coursework built a different asset: physical intuition sharp enough to reason naturally about how a robot perceives its environment and how it should act in response.</p>
           <p>I built most of my technical skills through design teams and personal projects. Last year, I joined UBC Thunderbots. We build a fleet autonomous soccer-playing robots that compete in global tournaments. This year, I serve as a lead of the software subteam, with a focus on motion, state estimation, controls, and navigation. I enjoy finding solutions for these problems that lie between sofware and the physical robot.</p>
-          <p>Outside of it, I enjoy playing guitar, singing, playing soccer, and eating. I am also an executive of UBC HKSA. I value genuine connections with like-minded people.</p>
+          <p>Outside of it, I enjoy playing guitar, singing, playing soccer, cooking and eating (my beli account: <a class="link" href="https://beliapp.co/app/starrrynight" target="_blank" rel="noopener noreferrer">https://beliapp.co/app/starrrynight</a>). I am also an executive of UBC HKSA. I value genuine connections with like-minded people.</p>
 
           <ul class="stack">
-            <li>SOLIDWORKS</li>
+            <li>C++</li>
             <li>Python</li>
             <li>C</li>
+            <li>Vim (lol</li>
             <li>C#</li>
+            <li>Java</li>
+            <li>Onshape</li>
+            <li>SOLIDWORKS</li>
             <li>3D Printing</li>
             <li>Machine Learning</li>
           </ul>
 
+          <div class="looking">
+            <p class="meta">Looking for</p>
+            <p>Looking for robotics software internships and co-ops. The work I want is sensing, state estimation, control and navigation, the layer between what a robot measures and what it decides to do.</p>
+          </div>
+
           <div class="actions">
             <a class="button" href="timeline.html">Timeline</a>
+            <a class="link" href="https://drive.google.com/file/d/14a2xltDFie9RSNopcXehIVePmRw_-OLX/view?usp=sharing" target="_blank" rel="noopener noreferrer">Resume</a>
             <a class="link" href="life.html">Life gallery</a>
           </div>
         </div>
 
-        <div class="portrait">
-          <img src="images/portrait.jpg" alt="Samuel Lau">
+        <div class="intro-side">
+          <div class="portrait">
+            <img src="images/portrait.jpg" alt="Samuel Lau">
+          </div>
+          <div class="education">
+            <p class="meta">Education</p>
+            <p class="school">University of British Columbia</p>
+            <p class="where">Engineering Physics, GPA 4.20</p>
+            <p class="where">Expected May 2029</p>
+            <p class="awards">Trek Excellence Scholarship (2025), Dean's Scholar (2025)</p>
+          </div>
         </div>
       </div>
     </div>
@@ -252,15 +314,15 @@
         </article>
         <article class="card">
           <a href="blog/5-vs-150.html">
-            <div class="card-thumb"><img src="images/blog-5-vs-150.svg" alt=""></div>
+            <div class="card-thumb"><img src="images/blog-5-vs-150.png" alt=""></div>
             <p class="meta">2 June 2026</p>
-            <h3>%5 vs $150 Sensing</h3>
+            <h3>$5 vs $150 Sensing</h3>
             <p>The story of how our Robot Team made the playoffs using 3 24-tick mechanical encoders and a sonar</p>
           </a>
         </article>
         <article class="card">
           <a href="blog/neovim.html">
-            <div class="card-thumb"><img src="images/blog-neovim.svg" alt=""></div>
+            <div class="card-thumb"><img src="images/blog-neovim.png" alt=""></div>
             <p class="meta">19 March 2026</p>
             <h3>How Neovim changed my life</h3>
             <p>Making coding feel like playing a video game</p>
@@ -270,31 +332,7 @@
     </div>
   </section>
 
-  <!-- ── Testimonials ── -->
-  <section class="section" id="testimonials">
-    <div class="wrap">
-      <div class="section-head">
-        <div class="section-head-row">
-          <h2 class="heading">Testimonials</h2>
-        </div>
-      </div>
 
-      <div class="card-grid">
-        <figure class="quote">
-          <blockquote>Samuel has the rare habit of asking the question everyone else skipped. Our launch was better for it — sharper, simpler, and a month earlier than we planned.</blockquote>
-          <figcaption><span class="who">Ada Whitfield</span><span class="role">Product Lead, Northwind</span></figcaption>
-        </figure>
-        <figure class="quote">
-          <blockquote>He moves between design and engineering without dropping anything on either side. It is genuinely hard to find, and it changed how our team works.</blockquote>
-          <figcaption><span class="who">Tomás Herrera</span><span class="role">Founder, Atlas</span></figcaption>
-        </figure>
-        <figure class="quote">
-          <blockquote>Thoughtful, fast, and completely unflappable. I have handed him half-formed ideas and gotten back something better than what I had in my head.</blockquote>
-          <figcaption><span class="who">Priya Raman</span><span class="role">Editor, Field Notes</span></figcaption>
-        </figure>
-      </div>
-    </div>
-  </section>
 </main>
 
 <footer class="site-footer">
@@ -309,12 +347,13 @@
         <ul>
           <li><a href="https://github.com/StarrryNight">GitHub</a></li>
           <li><a href="https://linkedin.com/in/samuel-lau-68b844282">LinkedIn</a></li>
+          <li><a href="https://drive.google.com/file/d/14a2xltDFie9RSNopcXehIVePmRw_-OLX/view?usp=sharing" target="_blank" rel="noopener noreferrer">Resume</a></li>
         </ul>
       </div>
     </div>
   </div>
 </footer>
 
-<script src="js/main.js"></script>
+<script src="js/main.js?v=1788621881005"></script>
 </body>
 </html>

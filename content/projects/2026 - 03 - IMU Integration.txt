@@ -1,13 +1,25 @@
 summary: Fusing inertial measurements into the state estimate of an autonomous robot.
+category: Robotics
+source: https://github.com/UBC-Thunderbots/Software/pull/3739
 
-## The problem
+## Why
 
-An IMU gives high-rate acceleration and angular velocity but drifts over time. On its own it is not a position estimate; fused with another source it is a very good one.
+Our robots know where they are because the overhead cameras tell them, at 60Hz, with latency. Between those updates the estimate is coasting on a motion model, so a robot that gets bumped or spins up fast is somewhere other than where we think it is.
 
-## What I built
+An IMU measures what the robot is actually doing, in the robot's own frame, way faster than vision can tell us. On its own it's useless for position, because integrating gyro drift gives you a number that slowly walks away from reality. Fused with vision though, vision anchors the absolute position and the IMU fills in everything between frames.
 
-Describe the sensor, the fusion approach, how you calibrated it, and how you dealt with drift and bias.
+## My solution
 
-## Result
+I wrote the `ImuService` that owns the sensor end to end, raw I2C up to something the rest of the stack can use.
 
-What the integration improved.
+- I talk to the chip over **I2C SMBus** directly, configuring the accelerometer and gyro control registers on startup and checking each write reads back correctly. That way a silently misconfigured sensor fails loudly at boot instead of quietly reporting nonsense all match.
+- Readings come out of the chip as **two bytes in separate registers**, so I read both and recombine them into a signed value, then scale by the full-scale range and gravity to get real units.
+- **The chip doesn't report angular acceleration**, so I derive it from successive angular velocity readings.
+- I put the **gyro variance straight from the datasheet** on the service as a constant. Whatever filter consumes this needs to know how much to trust it, and that number should come from the spec sheet rather than someone's guess.
+- Every reading returns an `optional`. If the bus read fails, callers get nothing instead of a stale or garbage value. A wrong number is worse than no number once it's inside a filter.
+
+I also added a calibration routine that samples the sensor at rest to find its offsets. Right now it's opt-in rather than automatic, and making it robust is the follow-up.
+
+## Status
+
+This landed as a port of earlier work plus linear acceleration polling for the state estimator to use. Angular acceleration calculations and proper calibration scripts are next. Working on the IMU is also what got me into the [localizer redesign](robot-localizer-redesign.html), since it turned out most of the IMU's problems weren't really the IMU.

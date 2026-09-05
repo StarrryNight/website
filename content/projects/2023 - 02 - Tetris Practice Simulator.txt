@@ -1,4 +1,9 @@
 summary: A Unity Tetris game with custom scenarios for practicing advanced techniques
+category: Software
 link: https://play.unity.com/en/games/574578bb-2258-40e1-ab7c-89af79dbe7d5/tetris-practice
 
-A Unity-based Tetris game designed specifically for practicing advanced techniques like T-spins, combos, and other competitive strategies. Features custom scenario building capabilities, allowing players to set up specific board states for targeted practice. Used in a school club for training purposes.
+I was in a Tetris club and we all had the same problem: you can only practise a T-spin when the board happens to give you one, which is almost never when you want it.
+
+So I built a Unity Tetris where you set the board up yourself. You place the pieces where you want them, save that position, and drill it. T-spins, combos, whatever technique you are trying to get automatic.
+
+The club used it for training.
