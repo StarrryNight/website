@@ -1,7 +1,9 @@
 # Personal Portfolio
 
-Plain HTML, CSS and JavaScript. No frameworks, no dependencies. The published
-site is static files — nothing on it needs Node to run.
+Live at **https://lausingsamuel.com**
+
+Plain HTML, CSS and JavaScript. No framework. The published site is static files;
+nothing on it needs Node to run. Node is only used to generate it.
 
 **To change the site you edit `content/`, then run one command:**
 
@@ -10,11 +12,17 @@ npm install     # once only - pulls in KaTeX, used at build time
 node build.mjs
 ```
 
-That regenerates `index.html`, `life.html`, `timeline.html`, `blog.html`,
-`blog/*.html`, `projects/*.html` and the whole `images/` folder.
-Do not hand-edit those — they get overwritten. Edit `content/` instead.
+That regenerates `index.html`, `blog.html`, `timeline.html`, `life.html`,
+`404.html`, `blog/*.html`, `projects/*.html` and the whole `images/` folder.
+**Do not hand-edit those, they get overwritten.** Edit `content/` instead.
 
-To preview: `python3 -m http.server 8080`, then open http://localhost:8080
+Preview with `python3 -m http.server 8080`, then open http://localhost:8080
+
+Deploy with `vercel --prod`. Vercel runs the build itself, but building locally
+first lets you check it before it goes public.
+
+`css/style.css` and `js/main.js` are **not** generated. Edit them directly and
+just refresh; they carry a `?v=` cache stamp so you never get a stale copy.
 
 ---
 
@@ -22,17 +30,18 @@ To preview: `python3 -m http.server 8080`, then open http://localhost:8080
 
 ```
 content/
-  site.txt            your name, tagline, location, email, social links
-  about.txt           the About paragraphs and the tech list
+  site.txt            name, tagline, location, email, socials, resume link
+  about.txt           About paragraphs, tech list, education, "looking for"
   portrait.jpg        your face, shown in About
-  timeline.txt        work history
-  testimonials.txt    quotes
+  timeline.txt        work history and education
   life.txt            the Life page heading and intro line
+  testimonials.txt    quotes (currently .off, so the section is hidden)
 
-  hero/               drop hero images here
-  life/               drop gallery photos here
-  projects/           drop project images (+ optional .txt) here
-  blog/               drop .md posts (+ a cover image) here
+  hero/               hero images, shown in filename order
+  life/               gallery photos, filename becomes the caption
+  projects/           project image + optional .txt
+  blog/               .md posts + a cover image each
+  media/              anything embedded in a body (images, video)
 ```
 
 ### Adding a project
@@ -40,110 +49,122 @@ content/
 Drop an image into `content/projects/` named:
 
 ```
-2026 - 01 - Kalman Filter for Ball Estimation.png
- ↑      ↑    ↑
- year   order (optional)   title
+2026 - 04 - Project Name.png
+ |     |     |
+ |     |     the title, and the page URL
+ |     sort order within the year (lower is first)
+ year, drives which filter bucket it lands in
 ```
 
-The year drives the filter buttons. The order number sorts projects within a
-year — leave it out and it sorts last. Run `node build.mjs` and it appears.
-
-**To make the card link somewhere,** add a text file with the same name:
+Add a `.txt` beside it with the same stem for anything more:
 
 ```
-content/projects/2026 - 01 - Kalman Filter for Ball Estimation.txt
-```
-```
-link: https://github.com/you/repo
-```
+summary: One line, shown under the title on the project page.
+category: Robotics, Machine Learning        # one or more, comma separated
+link: https://...                           # live demo, shown as "Visit project"
+source: https://...                         # repo or PR, shown as "Source"
+status: Ongoing                             # optional, shows a pulsing badge
+crop: center 30%                            # optional, overrides the card crop
 
-**To give the project its own page** (and the "Open project" button that
-appears on hover), put a summary and a body in that same file:
-
+Body starts here, in markdown. A project with a body gets its own page and a
+hover button on its card. Summary only means it stays a plain card.
 ```
-summary: One line that sits under the title.
-
-## The problem
-
-Write in markdown. Headings, - bullets, 1. numbered lists,
-**bold**, > quotes and [links](https://example.com) all work.
-```
-
-A project with a body gets a page. One with only a `link:` opens that link.
-One with neither is just an image.
 
 ### Adding a gallery photo
 
-Drop it into `content/life/`. The filename becomes the caption:
+Filename is the caption:
 
 ```
-09 - Match day.jpg   →   caption "Match day"
-Match day.jpg        →   caption "Match day"
+content/life/07 - Won ramen.jpg   ->   caption "Won ramen"
 ```
-
-The leading number only controls the order and is stripped from the caption.
 
 ### Adding a blog post
 
-Put `my-post.md` in `content/blog/`, and optionally an image with the same
-name (`my-post.jpg`) to use as the cover:
+```
+content/blog/my-post.md          the post
+content/blog/my-post.png         its cover, same stem
+```
 
 ```
-title: My post title
+title: My Post
 date: 14 August 2026
-tags: Process, Design
-summary: One sentence shown on the cards.
+tags: Robotics, State Estimation
+summary: One line, shown on the card.
 
-Write the body in markdown.
+Body in markdown.
 ```
 
-Posts sort by date, newest first. Newer/older links are generated.
+The filename is the URL, so `discrete_filters.md` becomes
+`/blog/discrete_filters.html`. Posts sort by date, newest first.
 
 ### Hero images
 
-Drop them into `content/hero/`. They cycle in filename order, so name them
-`01.jpg`, `02.jpg` and so on. Change the timing with `hero_interval` in
-`site.txt`.
+`content/hero/`, in filename order. Add or remove one and the dots follow. The
+rotation speed is `hero_interval` in `site.txt`, in milliseconds.
+
+Crops are per position, in `css/style.css`:
+
+```css
+.hero img:nth-of-type(1) { object-position: center 65%; }
+```
+
+Higher percentage moves the photo down in the frame, lower moves it up. These
+target **positions, not files**, so reordering the hero means moving the rules.
 
 ### Timeline and testimonials
 
-`content/timeline.txt` — one role per block, blank line between blocks:
+`timeline.txt`, one role per block:
 
 ```
-2026 — now | Machine Learning Researcher | de Boer Lab
-- A bullet point.
-- Another one.
+Sep 2025 — now | Software Lead | UBC Thunderbots
+- A bullet.
+- Another bullet.
 ```
 
-`content/testimonials.txt` — the quote, then the attribution:
-
-```
-The quote text goes here.
-— Ada Whitfield, Product Lead, Northwind
-```
+`testimonials.txt` works the same way. It is currently renamed
+`testimonials.txt.off`, which hides the section and its nav link entirely.
+Rename it back to bring it in.
 
 ---
 
 ## Markdown and LaTeX
 
-Blog posts and project pages are Markdown. Paste it in and rebuild.
+Blog posts and project bodies are markdown:
 
 ```
 # ## ###          headings
-- item            bullets
+- item            bullets, indent for a nested list
 1. item           numbered
 > quote           blockquote
 **bold** *italic* `code`
 [text](url)       link
-![alt](file.png)  image
+![alt](file.png)  image or video from content/media/
 ---               rule
 
-| a | b |         table - the |---| row is required
+| a | b |         table, the |---| row is required
 | --- | --- |
 | 1 | 2 |
 ```
 
-Fenced code blocks work too, with an optional language after the opening fence.
+Fenced code blocks work, with an optional language after the fence.
+
+About paragraphs are plain text, but `[text](url)` works there too so a sentence
+can carry a link.
+
+### Video
+
+Drop the file in `content/media/`, embed it like an image:
+
+```
+![Caption](demo.mp4)
+```
+
+`.mp4`, `.webm`, `.mov` and `.m4v` are accepted, but **`.mov` will not play in
+most browsers**. Convert first:
+
+```bash
+ffmpeg -i in.mov -c:v libx264 -crf 23 out.mp4
+```
 
 ### LaTeX
 
@@ -155,39 +176,45 @@ The state is $x_k = [p_x, p_y, v_x, v_y]^T$, and the gain is
 $$K_k = P H^T (H P H^T + R)^{-1}$$
 ```
 
-Maths is rendered by **KaTeX at build time**, so the published page contains
-finished markup. No JavaScript runs in the browser to draw it, and it works
-offline and with JS turned off. `css/katex.min.css` and `css/fonts/` are copied
-out of `node_modules` by the build, and are linked only on pages that actually
-contain maths.
+Rendered by **KaTeX at build time**, so the published page contains finished
+markup. No JavaScript draws it in the browser, and it works offline and with JS
+off. `css/katex.min.css` and `css/fonts/` are copied out of `node_modules` by the
+build and only linked on pages that actually contain maths.
 
-Write a literal dollar sign as `\$`. If KaTeX cannot parse a formula, the build
-prints a warning and that one formula falls back to inline code instead of
-failing the build.
+Write a literal dollar sign as `\$`. If KaTeX cannot parse a formula the build
+warns and that one formula falls back to inline code rather than failing.
+
+---
 
 ## Design
 
-All of it is in `css/style.css`, organised by section, with colour and spacing
-custom properties at the top. `js/main.js` has three behaviours and nothing
-else: the mobile menu, the hero image swap, and the project filter/arrows.
+Monochrome, one typeface (IBM Plex Sans, self-hosted in `css/fonts/`, no external
+request). Motion is deliberately small: a hero crossfade, hover transitions, and
+sections settling in once as you scroll. All of it disabled under
+`prefers-reduced-motion`.
 
-Monochrome. System font stack, so no webfont request. No animation anywhere —
-the hero swaps images outright, the strip jumps rather than glides, and
-nothing fades in on scroll. The hero holds still under `prefers-reduced-motion`
-and pauses while the tab is in the background.
+Favicon is a gear: `favicon.svg`, `favicon.ico`, `apple-touch-icon.png`.
+
+---
 
 ## Still placeholders
 
-- **Hero images** and **blog covers** — generated greyscale SVGs.
-- **The four blog posts** — invented.
-- **The three testimonials** — invented. Do not publish these as-is.
-- **The three 2026 project pages** — scaffolds with headings to fill in.
-- **The eight gallery photos and their captions** — invented.
+- `content/blog/discrete_filters.md` is a stub, and its cover
+  `discrete_filters.svg` is the last generated image on the site.
+- Six projects have no body, so no page: Tabs Closer, Acne Detector, Underwater
+  Claw, Rage Detector, FPL Predictor, F.U.R.I.N.A.
+- No `og:` or `twitter:` meta tags, and no `url` in `site.txt`, so a shared link
+  has no preview card.
+- No `robots.txt` or `sitemap.xml`.
 
-`node gen-placeholders.mjs` regenerates the greyscale placeholders if you want
-different ones. It is the only other file that needs Node.
+---
 
 ## Publishing
 
-It's static — any host works. Run `node build.mjs` first, then drag the folder
-onto Netlify, push to GitHub Pages, or run `npx vercel`.
+```bash
+node build.mjs && vercel --prod
+```
+
+`vercel.json` pins `framework: null` and `outputDirectory: "."`. Without it Vercel
+uses the project's stale Next.js preset, builds fine, then fails looking for a
+`.next` directory.
